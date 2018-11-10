@@ -18,9 +18,9 @@
       <i class="fa fa-spinner fa-spin spinner" aria-hidden="true"></i>
       <p> Searching for RF Switches...</p>
     </div>
-    <div id="rfswitches">
-        <div v-for="rfs in rfswitches">
-          <rfswitch :name="rfs.name" :in_ports="rfs.in_ports" v-on:set-port="setPort"></rfswitch>
+    <div id="switches">
+        <div v-for="sbs in Switches">
+          <sb-switch :name="sbs.name" :ports="sbs.ports" v-on:set-port="setPort"></sb-switch>
         </div>
     </div>
     <div id="connection">
@@ -36,7 +36,7 @@
   <script src="/static/js/vue-resource-1.3.4.min.js"></script>
   <script src="/static/js/components/device-name.js"></script>
   <script src="/static/js/components/button.js"></script>
-  <script src="/static/js/components/rfswitch.js"></script>
+  <script src="/static/js/components/switch.js"></script>
   <script src="/static/js/jquery-2.2.3.min.js"></script>
   <script src="/static/js/bootstrap.min.js"></script>
   <script src="/static/js/reconnecting-websocket.js"></script>

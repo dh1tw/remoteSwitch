@@ -1,5 +1,5 @@
 var Button = {
-    template: `<button class="btn sw-button" type="button" v-bind:class="{'btn-success':active, 'btn-primary':inactive}" v-on:click="setPort()">
+    template: `<button class="btn sw-button" type="button" v-bind:class="{'btn-success':state, 'btn-primary':inverted_state}" v-on:click="setPort()">
                     {{label}}
                 </button>`,
     props: {
@@ -16,8 +16,8 @@ var Button = {
     },
     watch: {},
     computed: {
-        inactive: function(){
-            return !this.active;
+        inverted_state: function(){
+            return !this.state;
         }
     }
 }

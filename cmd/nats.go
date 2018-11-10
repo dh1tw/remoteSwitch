@@ -1,17 +1,19 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
-	"os/signal"
 	"strings"
 	"time"
 
-	"github.com/dh1tw/remoteSwitch/hub"
+	sbSwitch "github.com/dh1tw/remoteSwitch/sb_switch"
 	sw "github.com/dh1tw/remoteSwitch/switch"
 	bsGPIO "github.com/dh1tw/remoteSwitch/switch/bandswitch-gpio"
+	"github.com/gogo/protobuf/proto"
 	micro "github.com/micro/go-micro"
+	"github.com/micro/go-micro/broker"
 	"github.com/micro/go-micro/server"
 	natsBroker "github.com/micro/go-plugins/broker/nats"
 	natsReg "github.com/micro/go-plugins/registry/nats"
@@ -179,18 +181,18 @@ func natsServer(cmd *cobra.Command, args []string) {
 	// 	log.Println(http.ListenAndServe("0.0.0.0:6060", http.DefaultServeMux))
 	// }()
 
-	// // struct which holds the rotator.Rotator instance, implements the
+	// // struct which holds the switch.Switcher instance, implements the
 	// // RPC Service methods and publishes changes via the Broker
-	// rpcRot := &rpcRotator{}
+	rpcSwitch := &rpcSwitch{}
 
-	// rotatorError := make(chan struct{})
+	switchError := make(chan struct{})
 
-	// // initialize our Rotator
-	// r, err := initRotator(viper.GetString("rotator.type"), rpcRot.PublishState, rotatorError)
-	// if err != nil {
-	// 	fmt.Println("unable to initialize rotator:", err)
-	// 	os.Exit(1)
-	// }
+	sw := bsGPIO.NewSwitchGPIO(bsGPIO.Port(configA),
+		bsGPIO.Port(configB), bsGPIO.Name(viper.GetString("switch.name")),
+		bsGPIO.EventHandler(rpcSwitch.PublishDeviceUpdate))
+	if err := sw.Init(); err != nil {
+		log.Fatal(err)
+	}
 
 	// better call this Addrs(?)
 	serviceName := fmt.Sprintf("shackbus.switch.%s", viper.GetString("switch.name"))
@@ -240,7 +242,7 @@ func natsServer(cmd *cobra.Command, args []string) {
 	}
 
 	// let's create the new rotator service
-	rs := micro.NewService(
+	ss := micro.NewService(
 		micro.Name(serviceName),
 		micro.RegisterInterval(time.Second*10),
 		micro.Broker(br),
@@ -251,45 +253,138 @@ func natsServer(cmd *cobra.Command, args []string) {
 	)
 
 	// initalize our service
-	rs.Init()
+	ss.Init()
 
-	bcast := make(chan sw.Device, 10)
+	rpcSwitch.sw = sw
+	rpcSwitch.service = ss
+	rpcSwitch.pubSubTopic = fmt.Sprintf("%s.state", strings.Replace(serviceName, " ", "_", -1))
 
-	var rEventHandler = func(r sw.Switcher, cfg sw.Device) {
-		bcast <- cfg
-	}
+	// register our Rotator RPC handler
+	sbSwitch.RegisterSbSwitchHandler(ss.Server(), rpcSwitch)
 
-	sw := bsGPIO.NewSwitchGPIO(bsGPIO.Port(configA),
-		bsGPIO.Port(configB), bsGPIO.Name(viper.GetString("switch.name")),
-		bsGPIO.EventHandler(rEventHandler))
-	if err := sw.Init(); err != nil {
-		log.Fatal(err)
-	}
-
-	h, err := hub.NewHub(sw)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	errCh := make(chan struct{})
-
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
+	rpcSwitch.initialized = true
 
 	go func() {
 		for {
 			select {
-			case <-errCh:
-				log.Println("hub error")
+			case <-switchError:
+				ss.Server().Stop()
 				os.Exit(1)
-			case msg := <-bcast:
-				h.Broadcast(msg)
-			case <-c:
-				os.Exit(0)
 			}
 		}
 	}()
 
-	h.ListenHTTP("0.0.0.0", 6565, errCh)
+	if err := ss.Run(); err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+}
+
+type rpcSwitch struct {
+	initialized bool
+	service     micro.Service
+	sw          sw.Switcher
+	pubSubTopic string
+}
+
+func (s *rpcSwitch) PublishDeviceUpdate(swi sw.Switcher, d sw.Device) {
+
+	if !s.initialized {
+		return
+	}
+
+	data, err := proto.Marshal(deviceToSbDevice(swi.Serialize()))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	msg := broker.Message{
+		Body: data,
+	}
+
+	if err := s.service.Options().Broker.Publish(s.pubSubTopic, &msg); err != nil {
+		log.Println(err)
+	}
+}
+
+func (r *rpcSwitch) GetPort(ctx context.Context, portName *sbSwitch.PortName, port *sbSwitch.Port) error {
+	p, err := r.sw.GetPort(portName.GetName())
+	if err != nil {
+		return err
+	}
+
+	myPort := portToSbPort(p)
+	port.Name = myPort.GetName()
+	port.Id = myPort.GetId()
+	port.Exclusive = myPort.GetExclusive()
+	port.Terminals = myPort.GetTerminals()
+
+	return nil
+}
+
+func (s *rpcSwitch) SetPort(ctx context.Context, portReq *sbSwitch.PortRequest, out *sbSwitch.None) error {
+
+	port := sw.Port{
+		Name:      portReq.GetName(),
+		Terminals: []sw.Terminal{},
+	}
+
+	for _, t := range portReq.GetTerminals() {
+		terminal := sw.Terminal{
+			Name:  t.GetName(),
+			State: t.GetState(),
+		}
+		port.Terminals = append(port.Terminals, terminal)
+	}
+
+	return s.sw.SetPort(port)
+}
+
+func (s *rpcSwitch) GetDevice(ctx context.Context, in *sbSwitch.None, sbDevice *sbSwitch.Device) error {
+
+	myDevice := deviceToSbDevice(s.sw.Serialize())
+
+	sbDevice.Name = myDevice.GetName()
+	sbDevice.Id = myDevice.GetId()
+	sbDevice.Exclusive = myDevice.GetExclusive()
+	sbDevice.Ports = myDevice.GetPorts()
+
+	return nil
+}
+
+func deviceToSbDevice(device sw.Device) *sbSwitch.Device {
+
+	sbDevice := &sbSwitch.Device{
+		Name: device.Name,
+		Id:   int32(device.ID),
+		// Exclusive: device.Exclusive,
+		Ports: []*sbSwitch.Port{},
+	}
+
+	for _, p := range device.Ports {
+		sbDevice.Ports = append(sbDevice.Ports, portToSbPort(p))
+	}
+	return sbDevice
+}
+
+func portToSbPort(port sw.Port) *sbSwitch.Port {
+
+	sbPort := &sbSwitch.Port{
+		Name: port.Name,
+		Id:   int32(port.ID),
+		// Exclusive: port.Exclusive,
+		Terminals: []*sbSwitch.Terminal{},
+	}
+
+	for _, t := range port.Terminals {
+		sbTerminal := &sbSwitch.Terminal{
+			Name:  t.Name,
+			Id:    int32(t.ID),
+			State: t.State,
+		}
+		sbPort.Terminals = append(sbPort.Terminals, sbTerminal)
+	}
+
+	return sbPort
 }

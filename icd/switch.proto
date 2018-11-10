@@ -2,7 +2,7 @@ syntax= "proto3";
 
 package shackbus;
 
-service Switch{
+service SbSwitch{
     rpc GetPort(PortName) returns (Port);
     rpc SetPort(PortRequest) returns (None);
     rpc GetDevice(None) returns (Device);
@@ -13,7 +13,7 @@ message None {}
 message Terminal{
     string name = 1;
     int32 id = 2;
-    bool active = 3;
+    bool state = 3;
 }
 
 message PortName{

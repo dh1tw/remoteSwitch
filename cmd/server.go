@@ -9,10 +9,10 @@ import (
 // serverCmd represents the server command
 var serverCmd = &cobra.Command{
 	Use:   "server",
-	Short: "RFSwitch Server",
-	Long: `Run a remoteRFSwitch server
+	Short: "Switch Server",
+	Long: `Run a remoteSwitch server
 
-Start a remoteRFSwitch server using a specific transport protocol`,
+Start a remoteSwitch server using a specific transport protocol`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Please select the server type (--help for available options)")
 	},

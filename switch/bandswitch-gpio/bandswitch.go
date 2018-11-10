@@ -53,6 +53,9 @@ func (r *relay) set(state bool) error {
 }
 
 func (r *relay) getState() bool {
+	if r.inverted {
+		return !r.state
+	}
 	return r.state
 }
 
@@ -133,7 +136,7 @@ func (g *BandswitchGPIO) SetPort(portRequest sw.Port) error {
 	for _, t := range portRequest.Terminals {
 		_, ok := p.relays[t.Name]
 		if !ok {
-			return fmt.Errorf("%s in an invalid terminal", t.Name)
+			return fmt.Errorf("%s is an invalid terminal", t.Name)
 		}
 	}
 
@@ -174,7 +177,7 @@ func (g *BandswitchGPIO) SetPort(portRequest sw.Port) error {
 
 	if g.eventHandler != nil {
 		device := g.serialize()
-		g.eventHandler(g, device)
+		go g.eventHandler(g, device)
 	}
 
 	return nil
@@ -210,7 +213,7 @@ func (p *port) serialize() sw.Port {
 		t := sw.Terminal{
 			Name:  r.name,
 			ID:    r.id,
-			State: r.state,
+			State: r.getState(),
 		}
 		swPort.Terminals = append(swPort.Terminals, t)
 	}
