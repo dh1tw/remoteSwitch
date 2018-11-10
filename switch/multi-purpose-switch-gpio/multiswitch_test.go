@@ -1,8 +1,7 @@
-package BandswitchGPIO
+package MultiPurposeSwitchGPIO
 
 import (
 	"testing"
-	"time"
 )
 
 var configA = PortConfig{
@@ -99,48 +98,48 @@ var configB = PortConfig{
 
 func TestGPIOInitialization(t *testing.T) {
 
-	rfSwitch := NewGpioSwitch(Port(configA), Port(configB))
-	if err := rfSwitch.Init(); err != nil {
-		t.Fatal(err)
-	}
+	// rfSwitch := NewGpioSwitch(Port(configA), Port(configB))
+	// if err := rfSwitch.Init(); err != nil {
+	// 	t.Fatal(err)
+	// }
 
-	time.Sleep(time.Second)
+	// time.Sleep(time.Second)
 
-	a, _ := rfSwitch.GetPort("A")
-	b, _ := rfSwitch.GetPort("B")
-	t.Logf("a: %s, b: %s", a, b)
+	// a, _ := rfSwitch.GetPort("A")
+	// b, _ := rfSwitch.GetPort("B")
+	// t.Logf("a: %s, b: %s", a, b)
 
-	if err := rfSwitch.SetPort("A", "20m"); err != nil {
-		t.Fatal(err)
-	}
-	a, _ = rfSwitch.GetPort("A")
-	b, _ = rfSwitch.GetPort("B")
-	t.Logf("a: %s, b: %s", a, b)
-	time.Sleep(time.Millisecond * 500)
+	// if err := rfSwitch.SetPort("A", "20m"); err != nil {
+	// 	t.Fatal(err)
+	// }
+	// a, _ = rfSwitch.GetPort("A")
+	// b, _ = rfSwitch.GetPort("B")
+	// t.Logf("a: %s, b: %s", a, b)
+	// time.Sleep(time.Millisecond * 500)
 
-	if err := rfSwitch.SetPort("A", "40m"); err != nil {
-		t.Fatal(err)
-	}
-	a, _ = rfSwitch.GetPort("A")
-	b, _ = rfSwitch.GetPort("B")
-	t.Logf("a: %s, b: %s", a, b)
+	// if err := rfSwitch.SetPort("A", "40m"); err != nil {
+	// 	t.Fatal(err)
+	// }
+	// a, _ = rfSwitch.GetPort("A")
+	// b, _ = rfSwitch.GetPort("B")
+	// t.Logf("a: %s, b: %s", a, b)
 
-	if err := rfSwitch.SetPort("B", "20m"); err != nil {
-		t.Fatal(err)
-	}
-	a, _ = rfSwitch.GetPort("A")
-	b, _ = rfSwitch.GetPort("B")
-	t.Logf("a: %s, b: %s", a, b)
+	// if err := rfSwitch.SetPort("B", "20m"); err != nil {
+	// 	t.Fatal(err)
+	// }
+	// a, _ = rfSwitch.GetPort("A")
+	// b, _ = rfSwitch.GetPort("B")
+	// t.Logf("a: %s, b: %s", a, b)
 
-	time.Sleep(time.Millisecond * 500)
-	if err := rfSwitch.SetPort("A", "20m"); err != nil {
-		t.Fatal(err)
-	}
-	a, _ = rfSwitch.GetPort("A")
-	b, _ = rfSwitch.GetPort("B")
-	t.Logf("a: %s, b: %s", a, b)
+	// time.Sleep(time.Millisecond * 500)
+	// if err := rfSwitch.SetPort("A", "20m"); err != nil {
+	// 	t.Fatal(err)
+	// }
+	// a, _ = rfSwitch.GetPort("A")
+	// b, _ = rfSwitch.GetPort("B")
+	// t.Logf("a: %s, b: %s", a, b)
 
-	time.Sleep(time.Millisecond * 500)
+	// time.Sleep(time.Millisecond * 500)
 
-	rfSwitch.Close()
+	// rfSwitch.Close()
 }

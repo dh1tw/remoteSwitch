@@ -1,25 +1,25 @@
-package BandswitchGPIO
+package MultiPurposeSwitchGPIO
 
 import sw "github.com/dh1tw/remoteSwitch/switch"
 
 // Name is a functional option to set the name of the rotator
-func Name(name string) func(*BandswitchGPIO) {
-	return func(g *BandswitchGPIO) {
+func Name(name string) func(*MPSwitchGPIO) {
+	return func(g *MPSwitchGPIO) {
 		g.name = name
 	}
 }
 
 // Port is a functional option to set a Port configuration.
-func Port(pc PortConfig) func(*BandswitchGPIO) {
-	return func(g *BandswitchGPIO) {
+func Port(pc PortConfig) func(*MPSwitchGPIO) {
+	return func(g *MPSwitchGPIO) {
 		g.portConfig[pc.Name] = pc
 	}
 }
 
 // ID is a functional option to set the display sequence of this element.
 // The ID is a reference which is used in GUIs.
-func ID(id int) func(*BandswitchGPIO) {
-	return func(g *BandswitchGPIO) {
+func ID(id int) func(*MPSwitchGPIO) {
+	return func(g *MPSwitchGPIO) {
 		g.id = id
 	}
 }
@@ -42,8 +42,8 @@ type PinConfig struct {
 
 // EventHandler sets a callback function through which the bandswitch
 // will report Events
-func EventHandler(h func(sw.Switcher, sw.Device)) func(*BandswitchGPIO) {
-	return func(g *BandswitchGPIO) {
+func EventHandler(h func(sw.Switcher, sw.Device)) func(*MPSwitchGPIO) {
+	return func(g *MPSwitchGPIO) {
 		g.eventHandler = h
 	}
 }

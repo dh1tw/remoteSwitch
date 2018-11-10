@@ -22,8 +22,8 @@ var Switch = {
     mounted: function () {},
     beforeDestroy: function () {},
     methods: {
-        setPort: function(portName, terminalName) {
-            this.$emit("set-port", this.name, portName, terminalName)
+        setPort: function(portName, terminalName, terminalState) {
+            this.$emit("set-port", this.name, portName, terminalName, terminalState)
         },
     },
     watch: {},

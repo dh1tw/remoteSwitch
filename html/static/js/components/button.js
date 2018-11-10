@@ -11,7 +11,7 @@ var Button = {
     beforeDestroy: function(){},
     methods: {
         setPort: function(){
-            this.$emit("set-port", this.port, this.label)
+            this.$emit("set-port", this.port, this.label, !this.state)
         },
     },
     watch: {},

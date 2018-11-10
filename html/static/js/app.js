@@ -102,11 +102,11 @@ var vm = new Vue({
         },
 
         // send a request to the server to set a particular port
-        setPort: function (switchName, portName, terminalName) {
+        setPort: function (switchName, portName, terminalName, terminalState) {
             this.$http.put("/api/switch/" + switchName + "/port",
                 JSON.stringify({
                     name: portName,
-                    terminals: [{"name":terminalName}],
+                    terminals: [{"name":terminalName, "state": terminalState}],
                 }));
         },
     },

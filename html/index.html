@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>RemoteRotator WebUI</title>
+  <title>RemoteSwitch WebUI</title>
   <link rel="css?family=Inconsolata">
   <link rel="stylesheet" href="/static/css/font-awesome.min.css">
   <link rel="stylesheet" href="/static/css/bootstrap.min.css">
@@ -16,7 +16,7 @@
   <div id="app">
     <div id="loading" v-bind:class="{'hidden': loading}">
       <i class="fa fa-spinner fa-spin spinner" aria-hidden="true"></i>
-      <p> Searching for RF Switches...</p>
+      <p> Searching for Switches...</p>
     </div>
     <div id="switches">
         <div v-for="sbs in Switches">

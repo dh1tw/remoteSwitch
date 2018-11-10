@@ -10,7 +10,7 @@ import (
 
 	sbSwitch "github.com/dh1tw/remoteSwitch/sb_switch"
 	sw "github.com/dh1tw/remoteSwitch/switch"
-	bsGPIO "github.com/dh1tw/remoteSwitch/switch/bandswitch-gpio"
+	mpGPIO "github.com/dh1tw/remoteSwitch/switch/multi-purpose-switch-gpio"
 	"github.com/gogo/protobuf/proto"
 	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/broker"
@@ -44,53 +44,53 @@ func init() {
 	natsServerCmd.Flags().StringP("username", "U", "", "NATS Username")
 }
 
-var configA = bsGPIO.PortConfig{
+var configA = mpGPIO.PortConfig{
 	Name: "A",
 	ID:   0,
-	OutPorts: []bsGPIO.PinConfig{
-		bsGPIO.PinConfig{
+	OutPorts: []mpGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "160m",
 			Pin:      "GPIO3",
 			Inverted: true,
 			ID:       0,
 		},
-		bsGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "80m",
 			Pin:      "GPIO19",
 			Inverted: true,
 			ID:       1,
 		},
-		bsGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "40m",
 			Pin:      "GPIO18",
 			Inverted: true,
 			ID:       2,
 		},
-		bsGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "20m",
 			Pin:      "GPIO15",
 			Inverted: true,
 			ID:       3,
 		},
-		bsGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "15m",
 			Pin:      "GPIO16",
 			Inverted: true,
 			ID:       4,
 		},
-		bsGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "10m",
 			Pin:      "GPIO2",
 			Inverted: true,
 			ID:       5,
 		},
-		bsGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "6m",
 			Pin:      "GPIO14",
 			Inverted: true,
 			ID:       6,
 		},
-		bsGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "WARC",
 			Pin:      "GPIO13",
 			Inverted: true,
@@ -99,53 +99,53 @@ var configA = bsGPIO.PortConfig{
 	},
 }
 
-var configB = bsGPIO.PortConfig{
+var configB = mpGPIO.PortConfig{
 	Name: "B",
 	ID:   1,
-	OutPorts: []bsGPIO.PinConfig{
-		bsGPIO.PinConfig{
+	OutPorts: []mpGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "160m",
 			Pin:      "GPIO7",
 			Inverted: true,
 			ID:       0,
 		},
-		bsGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "80m",
 			Pin:      "GPIO0",
 			Inverted: true,
 			ID:       1,
 		},
-		bsGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "40m",
 			Pin:      "GPIO199",
 			Inverted: true,
 			ID:       2,
 		},
-		bsGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "20m",
 			Pin:      "GPIO1",
 			Inverted: true,
 			ID:       3,
 		},
-		bsGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "15m",
 			Pin:      "GPIO6",
 			Inverted: true,
 			ID:       4,
 		},
-		bsGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "10m",
 			Pin:      "GPIO198",
 			Inverted: true,
 			ID:       5,
 		},
-		bsGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "6m",
 			Pin:      "GPIO12",
 			Inverted: true,
 			ID:       6,
 		},
-		bsGPIO.PinConfig{
+		mpGPIO.PinConfig{
 			Name:     "WARC",
 			Pin:      "GPIO11",
 			Inverted: true,
@@ -187,9 +187,10 @@ func natsServer(cmd *cobra.Command, args []string) {
 
 	switchError := make(chan struct{})
 
-	sw := bsGPIO.NewSwitchGPIO(bsGPIO.Port(configA),
-		bsGPIO.Port(configB), bsGPIO.Name(viper.GetString("switch.name")),
-		bsGPIO.EventHandler(rpcSwitch.PublishDeviceUpdate))
+	sw := mpGPIO.NewMPSwitchGPIO(mpGPIO.Port(configA),
+		mpGPIO.Port(configB), mpGPIO.Name(viper.GetString("switch.name")),
+		mpGPIO.EventHandler(rpcSwitch.PublishDeviceUpdate))
+
 	if err := sw.Init(); err != nil {
 		log.Fatal(err)
 	}
