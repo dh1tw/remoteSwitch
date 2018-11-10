@@ -1,0 +1,40 @@
+syntax= "proto3";
+
+package shackbus;
+
+service Switch{
+    rpc GetPort(PortName) returns (Port);
+    rpc SetPort(PortRequest) returns (None);
+    rpc GetDevice(None) returns (Device);
+}
+
+message None {}
+
+message Terminal{
+    string name = 1;
+    int32 id = 2;
+    bool active = 3;
+}
+
+message PortName{
+    string name = 1;
+}
+
+message PortRequest{
+    string name = 1;
+    repeated Terminal terminals = 2;
+}
+
+message Port{
+    string name = 1;
+    int32 id = 2;
+    repeated Terminal terminals = 3;
+    bool exclusive = 4;
+}
+
+message Device{
+    string name = 1;
+    int32 id = 2;
+    repeated Port ports = 3;
+    bool exclusive = 4;
+}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>RemoteRotator WebUI</title>
+  <link rel="css?family=Inconsolata">
+  <link rel="stylesheet" href="/static/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+  <div id="app">
+    <div id="loading" v-bind:class="{'hidden': loading}">
+      <i class="fa fa-spinner fa-spin spinner" aria-hidden="true"></i>
+      <p> Searching for RF Switches...</p>
+    </div>
+    <div id="rfswitches">
+        <div v-for="rfs in rfswitches">
+          <rfswitch :name="rfs.name" :in_ports="rfs.in_ports" v-on:set-port="setPort"></rfswitch>
+        </div>
+    </div>
+    <div id="connection">
+      <p id="connected" class="bg-success" v-bind:class="{'hidden': hideConnectionMsg}" v-if="connected">
+        <i class="fa fa-check"></i> Connected to Server
+      </p>
+      <p id="no-connection" class="bg-danger" v-else="connected">
+        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i> Connecting to Server
+      </p>
+    </div>
+  </div>
+  <script src="/static/js/vue.js"></script>
+  <script src="/static/js/vue-resource-1.3.4.min.js"></script>
+  <script src="/static/js/components/device-name.js"></script>
+  <script src="/static/js/components/button.js"></script>
+  <script src="/static/js/components/rfswitch.js"></script>
+  <script src="/static/js/jquery-2.2.3.min.js"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
+  <script src="/static/js/reconnecting-websocket.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+
+</html>
