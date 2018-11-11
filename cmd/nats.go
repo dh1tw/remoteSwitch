@@ -44,115 +44,117 @@ func init() {
 	natsServerCmd.Flags().StringP("username", "U", "", "NATS Username")
 }
 
-var configA = mpGPIO.PortConfig{
-	Name: "A",
-	ID:   0,
-	OutPorts: []mpGPIO.PinConfig{
-		mpGPIO.PinConfig{
-			Name:     "160m",
-			Pin:      "GPIO3",
-			Inverted: true,
-			ID:       0,
-		},
-		mpGPIO.PinConfig{
-			Name:     "80m",
-			Pin:      "GPIO19",
-			Inverted: true,
-			ID:       1,
-		},
-		mpGPIO.PinConfig{
-			Name:     "40m",
-			Pin:      "GPIO18",
-			Inverted: true,
-			ID:       2,
-		},
-		mpGPIO.PinConfig{
-			Name:     "20m",
-			Pin:      "GPIO15",
-			Inverted: true,
-			ID:       3,
-		},
-		mpGPIO.PinConfig{
-			Name:     "15m",
-			Pin:      "GPIO16",
-			Inverted: true,
-			ID:       4,
-		},
-		mpGPIO.PinConfig{
-			Name:     "10m",
-			Pin:      "GPIO2",
-			Inverted: true,
-			ID:       5,
-		},
-		mpGPIO.PinConfig{
-			Name:     "6m",
-			Pin:      "GPIO14",
-			Inverted: true,
-			ID:       6,
-		},
-		mpGPIO.PinConfig{
-			Name:     "WARC",
-			Pin:      "GPIO13",
-			Inverted: true,
-			ID:       7,
-		},
-	},
-}
+// var configA = mpGPIO.PortConfig{
+// 	Name:      "A",
+// 	ID:        0,
+// 	Exclusive: true,
+// 	Terminals: []mpGPIO.PinConfig{
+// 		mpGPIO.PinConfig{
+// 			Name:     "160m",
+// 			Pin:      "GPIO3",
+// 			Inverted: true,
+// 			ID:       0,
+// 		},
+// 		mpGPIO.PinConfig{
+// 			Name:     "80m",
+// 			Pin:      "GPIO19",
+// 			Inverted: true,
+// 			ID:       1,
+// 		},
+// 		mpGPIO.PinConfig{
+// 			Name:     "40m",
+// 			Pin:      "GPIO18",
+// 			Inverted: true,
+// 			ID:       2,
+// 		},
+// 		mpGPIO.PinConfig{
+// 			Name:     "20m",
+// 			Pin:      "GPIO15",
+// 			Inverted: true,
+// 			ID:       3,
+// 		},
+// 		mpGPIO.PinConfig{
+// 			Name:     "15m",
+// 			Pin:      "GPIO16",
+// 			Inverted: true,
+// 			ID:       4,
+// 		},
+// 		mpGPIO.PinConfig{
+// 			Name:     "10m",
+// 			Pin:      "GPIO2",
+// 			Inverted: true,
+// 			ID:       5,
+// 		},
+// 		mpGPIO.PinConfig{
+// 			Name:     "6m",
+// 			Pin:      "GPIO14",
+// 			Inverted: true,
+// 			ID:       6,
+// 		},
+// 		mpGPIO.PinConfig{
+// 			Name:     "WARC",
+// 			Pin:      "GPIO13",
+// 			Inverted: true,
+// 			ID:       7,
+// 		},
+// 	},
+// }
 
-var configB = mpGPIO.PortConfig{
-	Name: "B",
-	ID:   1,
-	OutPorts: []mpGPIO.PinConfig{
-		mpGPIO.PinConfig{
-			Name:     "160m",
-			Pin:      "GPIO7",
-			Inverted: true,
-			ID:       0,
-		},
-		mpGPIO.PinConfig{
-			Name:     "80m",
-			Pin:      "GPIO0",
-			Inverted: true,
-			ID:       1,
-		},
-		mpGPIO.PinConfig{
-			Name:     "40m",
-			Pin:      "GPIO199",
-			Inverted: true,
-			ID:       2,
-		},
-		mpGPIO.PinConfig{
-			Name:     "20m",
-			Pin:      "GPIO1",
-			Inverted: true,
-			ID:       3,
-		},
-		mpGPIO.PinConfig{
-			Name:     "15m",
-			Pin:      "GPIO6",
-			Inverted: true,
-			ID:       4,
-		},
-		mpGPIO.PinConfig{
-			Name:     "10m",
-			Pin:      "GPIO198",
-			Inverted: true,
-			ID:       5,
-		},
-		mpGPIO.PinConfig{
-			Name:     "6m",
-			Pin:      "GPIO12",
-			Inverted: true,
-			ID:       6,
-		},
-		mpGPIO.PinConfig{
-			Name:     "WARC",
-			Pin:      "GPIO11",
-			Inverted: true,
-			ID:       7,
-		},
-	},
-}
+// var configB = mpGPIO.PortConfig{
+// 	Name:      "B",
+// 	ID:        1,
+// 	Exclusive: true,
+// 	Terminals: []mpGPIO.PinConfig{
+// 		mpGPIO.PinConfig{
+// 			Name:     "160m",
+// 			Pin:      "GPIO7",
+// 			Inverted: true,
+// 			ID:       0,
+// 		},
+// 		mpGPIO.PinConfig{
+// 			Name:     "80m",
+// 			Pin:      "GPIO0",
+// 			Inverted: true,
+// 			ID:       1,
+// 		},
+// 		mpGPIO.PinConfig{
+// 			Name:     "40m",
+// 			Pin:      "GPIO199",
+// 			Inverted: true,
+// 			ID:       2,
+// 		},
+// 		mpGPIO.PinConfig{
+// 			Name:     "20m",
+// 			Pin:      "GPIO1",
+// 			Inverted: true,
+// 			ID:       3,
+// 		},
+// 		mpGPIO.PinConfig{
+// 			Name:     "15m",
+// 			Pin:      "GPIO6",
+// 			Inverted: true,
+// 			ID:       4,
+// 		},
+// 		mpGPIO.PinConfig{
+// 			Name:     "10m",
+// 			Pin:      "GPIO198",
+// 			Inverted: true,
+// 			ID:       5,
+// 		},
+// 		mpGPIO.PinConfig{
+// 			Name:     "6m",
+// 			Pin:      "GPIO12",
+// 			Inverted: true,
+// 			ID:       6,
+// 		},
+// 		mpGPIO.PinConfig{
+// 			Name:     "WARC",
+// 			Pin:      "GPIO11",
+// 			Inverted: true,
+// 			ID:       7,
+// 		},
+// 	},
+// }
 
 func natsServer(cmd *cobra.Command, args []string) {
 
@@ -187,8 +189,18 @@ func natsServer(cmd *cobra.Command, args []string) {
 
 	switchError := make(chan struct{})
 
-	sw := mpGPIO.NewMPSwitchGPIO(mpGPIO.Port(configA),
-		mpGPIO.Port(configB), mpGPIO.Name(viper.GetString("switch.name")),
+	scs, err := getMPGPIOSwitches()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if len(scs) == 0 {
+		log.Fatal("no multi_purpose_gpio switch found")
+	}
+
+	sc := scs[0]
+
+	sw := mpGPIO.NewMPSwitchGPIO(mpGPIO.Switch(sc),
 		mpGPIO.EventHandler(rpcSwitch.PublishDeviceUpdate))
 
 	if err := sw.Init(); err != nil {

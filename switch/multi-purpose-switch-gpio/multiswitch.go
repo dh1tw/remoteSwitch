@@ -20,7 +20,7 @@ type MPSwitchGPIO struct {
 	id           int
 	exclusive    bool
 	ports        map[string]*port
-	portConfig   map[string]PortConfig
+	switchConfig SwitchConfig
 	eventHandler func(sw.Switcher, sw.Device)
 }
 
@@ -49,10 +49,9 @@ type terminal struct {
 func NewMPSwitchGPIO(options ...func(*MPSwitchGPIO)) *MPSwitchGPIO {
 
 	g := &MPSwitchGPIO{
-		name:       "My Bandswitch",
-		id:         0,
-		ports:      make(map[string]*port),
-		portConfig: make(map[string]PortConfig),
+		name:  "My Bandswitch",
+		id:    0,
+		ports: make(map[string]*port),
 	}
 
 	for _, opt := range options {
@@ -83,18 +82,23 @@ func (g *MPSwitchGPIO) Init() error {
 		return fmt.Errorf("sysfs-gpio driver was not loaded; try running as root")
 	}
 
-	for pName, pConfig := range g.portConfig {
-		if _, portNameExists := g.ports[pName]; portNameExists {
-			return fmt.Errorf("portname %s already exists", pName)
+	g.name = g.switchConfig.Name
+	g.id = g.switchConfig.ID
+	g.exclusive = g.switchConfig.Exclusive
+
+	for _, pConfig := range g.switchConfig.Ports {
+		if _, portNameExists := g.ports[pConfig.Name]; portNameExists {
+			return fmt.Errorf("portname %s already exists", pConfig.Name)
 		}
 		p := &port{
 			name:            pConfig.Name,
 			terminals:       make(map[string]*terminal),
 			activeTerminals: make(map[string]*terminal),
+			exclusive:       pConfig.Exclusive,
 			id:              pConfig.ID,
 		}
 
-		for _, pinConfig := range pConfig.OutPorts {
+		for _, pinConfig := range pConfig.Terminals {
 			r := &terminal{
 				name:     pinConfig.Name,
 				inverted: pinConfig.Inverted,
@@ -115,7 +119,7 @@ func (g *MPSwitchGPIO) Init() error {
 			p.terminals[pinConfig.Name] = r
 		}
 
-		g.ports[pName] = p
+		g.ports[pConfig.Name] = p
 	}
 	return nil
 }

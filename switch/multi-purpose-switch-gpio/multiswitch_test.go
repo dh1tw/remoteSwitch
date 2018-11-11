@@ -6,7 +6,7 @@ import (
 
 var configA = PortConfig{
 	Name: "A",
-	OutPorts: []PinConfig{
+	Terminals: []PinConfig{
 		PinConfig{
 			Name:     "Port1A",
 			Pin:      "GPIO3",
@@ -52,7 +52,7 @@ var configA = PortConfig{
 
 var configB = PortConfig{
 	Name: "B",
-	OutPorts: []PinConfig{
+	Terminals: []PinConfig{
 		PinConfig{
 			Name:     "Port1B",
 			Pin:      "GPIO7",

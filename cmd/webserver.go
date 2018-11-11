@@ -35,7 +35,7 @@ var webServerCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(webServerCmd)
 	webServerCmd.Flags().StringP("host", "w", "127.0.0.1", "Host (use '0.0.0.0' to listen on all network adapters)")
-	webServerCmd.Flags().IntP("port", "k", 7000, "webserver http port")
+	webServerCmd.Flags().IntP("port", "k", 7010, "webserver http port")
 	webServerCmd.Flags().StringP("station", "X", "mystation", "Your station callsign")
 	webServerCmd.Flags().StringP("broker-url", "u", "localhost", "Broker URL")
 	webServerCmd.Flags().IntP("broker-port", "p", 4222, "Broker Port")
@@ -49,6 +49,19 @@ func webServer(cmd *cobra.Command, args []string) {
 	// go func() {
 	// 	log.Println(http.ListenAndServe("0.0.0.0:6060", http.DefaultServeMux))
 	// }()
+
+	// Try to read config file
+	if err := viper.ReadInConfig(); err == nil {
+		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	} else {
+		if strings.Contains(err.Error(), "Not Found in") {
+			fmt.Println("no config file found")
+		} else {
+			fmt.Println("Error parsing config file", viper.ConfigFileUsed())
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
 
 	viper.BindPFlag("web.host", cmd.Flags().Lookup("host"))
 	viper.BindPFlag("web.port", cmd.Flags().Lookup("port"))
