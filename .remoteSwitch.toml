@@ -8,121 +8,125 @@ broker-port = 4222
 username = ""
 password = ""
 
-[switches]
-multi_purpose_gpio = ["myBandswitch"]
+[switch]
+name = "mybandswitch"
+type = "dummy_switch"
+# type = "multi_purpose_gpio"
+# type = "stackmatch_gpio"
+# type = "ea4tx_remotebox"
 
-[myBandswitch]
+[mybandswitch]
 name = "Bandswitch"
 id = 0
 exclusive = true
-ports = ["PortA", "PortB"]
+ports = ["port_a", "port_b"]
 
 # Ports for myBandswitch
-[PortA]
+[port_a]
 name = "A"
 id = 0
 exclusive = true
-terminals = ["PortA_160m", "PortA_80m", "PortA_40m", "PortA_20m", "PortA_15m", "PortA_10m", "PortA_6m", "PortA_WARC"]
+terminals = ["a_160m", "a_80m", "a_40m", "a_20m", "a_15m", "a_10m", "a_6m", "a_WARC"]
 
-[PortB]
+[port_b]
 name = "B"
 id = 1
 exclusive = true
-terminals = ["PortB_160m", "PortB_80m", "PortB_40m", "PortB_20m", "PortB_15m", "PortB_10m", "PortB_6m", "PortB_WARC"]
+terminals = ["b_160m", "b_80m", "b_40m", "b_20m", "b_15m", "b_10m", "b_6m", "b_WARC"]
 
-# Terminals (GPIO Pins) for PortA
-[PortA_160m]
+# Terminals (GPIO Pins) for a
+[a_160m]
 name = "160m"
 pin = "GPIO3"
 inverted = true
 id = 0
 
-[PortA_80m]
+[a_80m]
 name = "80m"
 pin = "GPIO19"
 inverted = true
 id = 1
 
-[PortA_40m]
+[a_40m]
 name = "40m"
 pin = "GPIO18"
 inverted = true
 id = 2
 
-[PortA_20m]
+[a_20m]
 name = "20m"
 pin = "GPIO15"
 inverted = true
 id = 3
 
-[PortA_15m]
+[a_15m]
 name = "15m"
 pin = "GPIO16"
 inverted = true
 id = 4
 
-[PortA_10m]
+[a_10m]
 name = "10m"
 pin = "GPIO2"
 inverted = true
 id = 5
 
-[PortA_6m]
+[a_6m]
 name = "6m"
 pin = "GPIO14"
 inverted = true
 id = 6
 
-[PortA_WARC]
+[a_WARC]
 name = "WARC"
 pin = "GPIO13"
 inverted = true
 id = 7
 
 # Terminals (GPIO Pins) for PortB
-[PortB_160m]
+[b_160m]
 name = "160m"
 pin = "GPIO7"
 inverted = true
 id = 0
 
-[PortB_80m]
+[b_80m]
 name = "80m"
 pin = "GPIO0"
 inverted = true
 id = 1
 
-[PortB_40m]
+[b_40m]
 name = "40m"
 pin = "GPIO199"
 inverted = true
 id = 2
 
-[PortB_20m]
+[b_20m]
 name = "20m"
 pin = "GPIO1"
 inverted = true
 id = 3
 
-[PortB_15m]
+[b_15m]
 name = "15m"
 pin = "GPIO6"
 inverted = true
 id = 4
 
-[PortB_10m]
+[b_10m]
 name = "10m"
 pin = "GPIO198"
 inverted = true
 id = 5
 
-[PortB_6m]
+[b_6m]
 name = "6m"
 pin = "GPIO12"
 inverted = true
 id = 6
 
-[PortB_WARC]
+[b_WARC]
 name = "WARC"
 pin = "GPIO11"
 inverted = true
