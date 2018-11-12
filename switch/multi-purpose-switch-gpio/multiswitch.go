@@ -313,6 +313,9 @@ func (r *terminal) getState() bool {
 
 // Close shutsdown the switch and sets all GPIO ports to false.
 func (g *MPSwitchGPIO) Close() {
+	g.Lock()
+	defer g.Unlock()
+
 	for _, p := range g.ports {
 		for _, r := range p.terminals {
 			r.setState(false)
