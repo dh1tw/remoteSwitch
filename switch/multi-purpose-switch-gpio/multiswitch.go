@@ -126,6 +126,8 @@ func (g *MPSwitchGPIO) Init() error {
 
 // Name returns the Name of this Multi Purpose GPIO Switch
 func (g *MPSwitchGPIO) Name() string {
+	g.Lock()
+	defer g.Unlock()
 	return g.name
 }
 
