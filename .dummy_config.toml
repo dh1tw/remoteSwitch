@@ -1,0 +1,38 @@
+[nats]
+broker-url = "localhost"
+broker-port = 4222
+username = ""
+password = ""
+
+[switch]
+name = "myswitch"
+type = "dummy_switch"
+# type = "multi_purpose_gpio"
+# type = "stackmatch_gpio"
+# type = "ea4tx_remotebox"
+
+[myswitch]
+name = "80m 2el Array"
+id = 3
+exclusive = true
+ports = ["port_a"]
+
+# Ports for myswitch
+[port_a]
+name = "A"
+id = 0
+exclusive = true
+terminals = ["term1", "term2", "term3"]
+
+# Terminals for port_a
+[term1]
+name = "EU"
+id = 3
+
+[term2]
+name = "NA"
+id = 0
+
+[term3]
+name = "Omni"
+id = 1
