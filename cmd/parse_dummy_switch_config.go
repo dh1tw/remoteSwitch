@@ -3,13 +3,13 @@ package cmd
 import (
 	"fmt"
 
-	mpGPIO "github.com/dh1tw/remoteSwitch/switch/multi-purpose-switch-gpio"
+	ds "github.com/dh1tw/remoteSwitch/switch/dummy_switch"
 	"github.com/spf13/viper"
 )
 
-func getMPGPIOSwitchConfig(switchName string) (mpGPIO.SwitchConfig, error) {
+func getDummySwitchConfig(switchName string) (ds.SwitchConfig, error) {
 
-	sc := mpGPIO.SwitchConfig{}
+	sc := ds.SwitchConfig{}
 
 	// let's check first if all necessary keys exist in the config file
 	if !viper.IsSet(fmt.Sprintf("%s.name", switchName)) {
@@ -46,7 +46,7 @@ func getMPGPIOSwitchConfig(switchName string) (mpGPIO.SwitchConfig, error) {
 	sc.Exclusive = exclusive
 
 	for _, port := range ports {
-		p, err := getMPGPIOPortConfig(port)
+		p, err := getDummySwitchPortConfig(port)
 		if err != nil {
 			return sc, err
 		}
@@ -56,9 +56,9 @@ func getMPGPIOSwitchConfig(switchName string) (mpGPIO.SwitchConfig, error) {
 	return sc, nil
 }
 
-func getMPGPIOPortConfig(portName string) (mpGPIO.PortConfig, error) {
+func getDummySwitchPortConfig(portName string) (ds.PortConfig, error) {
 
-	pc := mpGPIO.PortConfig{}
+	pc := ds.PortConfig{}
 
 	// let's check first if all necessary keys exist in the config file
 	if !viper.IsSet(portName) {
@@ -93,10 +93,10 @@ func getMPGPIOPortConfig(portName string) (mpGPIO.PortConfig, error) {
 	pc.Name = name
 	pc.ID = id
 	pc.Exclusive = exclusive
-	pc.Terminals = make([]mpGPIO.PinConfig, 0, len(terminals))
+	pc.Terminals = make([]ds.PinConfig, 0, len(terminals))
 
 	for _, terminal := range terminals {
-		t, err := getMPGPIOTerminalConfig(terminal)
+		t, err := getDummySwitchTerminalConfig(terminal)
 		if err != nil {
 			return pc, err
 		}
@@ -106,9 +106,9 @@ func getMPGPIOPortConfig(portName string) (mpGPIO.PortConfig, error) {
 	return pc, nil
 }
 
-func getMPGPIOTerminalConfig(terminalName string) (mpGPIO.PinConfig, error) {
+func getDummySwitchTerminalConfig(terminalName string) (ds.PinConfig, error) {
 
-	pc := mpGPIO.PinConfig{}
+	pc := ds.PinConfig{}
 
 	// let's check first if all necessary keys exist in the config file
 	if !viper.IsSet(fmt.Sprintf("%s.name", terminalName)) {
@@ -119,28 +119,16 @@ func getMPGPIOTerminalConfig(terminalName string) (mpGPIO.PinConfig, error) {
 		return pc, fmt.Errorf("missing id parameter for terminal %s", terminalName)
 	}
 
-	if !viper.IsSet(fmt.Sprintf("%s.pin", terminalName)) {
-		return pc, fmt.Errorf("missing pin parameter for port %s", terminalName)
-	}
-
 	// get the values
 	name := viper.GetString(fmt.Sprintf("%s.name", terminalName))
 	if len(name) == 0 {
 		return pc, fmt.Errorf("name parameter of terminal %s must not be empty", terminalName)
 	}
 
-	pin := viper.GetString(fmt.Sprintf("%s.pin", terminalName))
-	if len(pin) == 0 {
-		return pc, fmt.Errorf("pin parameter of terminal %s must not be empty", terminalName)
-	}
-
 	id := viper.GetInt(fmt.Sprintf("%s.id", terminalName))
-	inverted := viper.GetBool(fmt.Sprintf("%s.inverted", terminalName))
 
 	pc.Name = name
-	pc.Pin = pin
 	pc.ID = id
-	pc.Inverted = inverted
 
 	return pc, nil
 }

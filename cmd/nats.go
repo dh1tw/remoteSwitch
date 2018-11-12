@@ -10,6 +10,7 @@ import (
 
 	sbSwitch "github.com/dh1tw/remoteSwitch/sb_switch"
 	sw "github.com/dh1tw/remoteSwitch/switch"
+	ds "github.com/dh1tw/remoteSwitch/switch/dummy_switch"
 	mpGPIO "github.com/dh1tw/remoteSwitch/switch/multi-purpose-switch-gpio"
 	"github.com/gogo/protobuf/proto"
 	micro "github.com/micro/go-micro"
@@ -35,126 +36,11 @@ can be located within your local lan or somewhere on the internet.`,
 
 func init() {
 	serverCmd.AddCommand(natsServerCmd)
-
-	natsServerCmd.Flags().StringP("type", "t", "bandswitch", "Switch type (supported: bandswitch, stackmatch")
-	natsServerCmd.Flags().StringP("name", "n", "mySwitch", "Name tag for the Switch")
 	natsServerCmd.Flags().StringP("broker-url", "u", "localhost", "Broker URL")
 	natsServerCmd.Flags().IntP("broker-port", "p", 4222, "Broker Port")
 	natsServerCmd.Flags().StringP("password", "P", "", "NATS Password")
 	natsServerCmd.Flags().StringP("username", "U", "", "NATS Username")
 }
-
-// var configA = mpGPIO.PortConfig{
-// 	Name:      "A",
-// 	ID:        0,
-// 	Exclusive: true,
-// 	Terminals: []mpGPIO.PinConfig{
-// 		mpGPIO.PinConfig{
-// 			Name:     "160m",
-// 			Pin:      "GPIO3",
-// 			Inverted: true,
-// 			ID:       0,
-// 		},
-// 		mpGPIO.PinConfig{
-// 			Name:     "80m",
-// 			Pin:      "GPIO19",
-// 			Inverted: true,
-// 			ID:       1,
-// 		},
-// 		mpGPIO.PinConfig{
-// 			Name:     "40m",
-// 			Pin:      "GPIO18",
-// 			Inverted: true,
-// 			ID:       2,
-// 		},
-// 		mpGPIO.PinConfig{
-// 			Name:     "20m",
-// 			Pin:      "GPIO15",
-// 			Inverted: true,
-// 			ID:       3,
-// 		},
-// 		mpGPIO.PinConfig{
-// 			Name:     "15m",
-// 			Pin:      "GPIO16",
-// 			Inverted: true,
-// 			ID:       4,
-// 		},
-// 		mpGPIO.PinConfig{
-// 			Name:     "10m",
-// 			Pin:      "GPIO2",
-// 			Inverted: true,
-// 			ID:       5,
-// 		},
-// 		mpGPIO.PinConfig{
-// 			Name:     "6m",
-// 			Pin:      "GPIO14",
-// 			Inverted: true,
-// 			ID:       6,
-// 		},
-// 		mpGPIO.PinConfig{
-// 			Name:     "WARC",
-// 			Pin:      "GPIO13",
-// 			Inverted: true,
-// 			ID:       7,
-// 		},
-// 	},
-// }
-
-// var configB = mpGPIO.PortConfig{
-// 	Name:      "B",
-// 	ID:        1,
-// 	Exclusive: true,
-// 	Terminals: []mpGPIO.PinConfig{
-// 		mpGPIO.PinConfig{
-// 			Name:     "160m",
-// 			Pin:      "GPIO7",
-// 			Inverted: true,
-// 			ID:       0,
-// 		},
-// 		mpGPIO.PinConfig{
-// 			Name:     "80m",
-// 			Pin:      "GPIO0",
-// 			Inverted: true,
-// 			ID:       1,
-// 		},
-// 		mpGPIO.PinConfig{
-// 			Name:     "40m",
-// 			Pin:      "GPIO199",
-// 			Inverted: true,
-// 			ID:       2,
-// 		},
-// 		mpGPIO.PinConfig{
-// 			Name:     "20m",
-// 			Pin:      "GPIO1",
-// 			Inverted: true,
-// 			ID:       3,
-// 		},
-// 		mpGPIO.PinConfig{
-// 			Name:     "15m",
-// 			Pin:      "GPIO6",
-// 			Inverted: true,
-// 			ID:       4,
-// 		},
-// 		mpGPIO.PinConfig{
-// 			Name:     "10m",
-// 			Pin:      "GPIO198",
-// 			Inverted: true,
-// 			ID:       5,
-// 		},
-// 		mpGPIO.PinConfig{
-// 			Name:     "6m",
-// 			Pin:      "GPIO12",
-// 			Inverted: true,
-// 			ID:       6,
-// 		},
-// 		mpGPIO.PinConfig{
-// 			Name:     "WARC",
-// 			Pin:      "GPIO11",
-// 			Inverted: true,
-// 			ID:       7,
-// 		},
-// 	},
-// }
 
 func natsServer(cmd *cobra.Command, args []string) {
 
@@ -171,8 +57,6 @@ func natsServer(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	viper.BindPFlag("switch.type", cmd.Flags().Lookup("type"))
-	viper.BindPFlag("switch.name", cmd.Flags().Lookup("name"))
 	viper.BindPFlag("nats.broker-url", cmd.Flags().Lookup("broker-url"))
 	viper.BindPFlag("nats.broker-port", cmd.Flags().Lookup("broker-port"))
 	viper.BindPFlag("nats.password", cmd.Flags().Lookup("password"))
@@ -189,26 +73,45 @@ func natsServer(cmd *cobra.Command, args []string) {
 
 	switchError := make(chan struct{})
 
-	scs, err := getMPGPIOSwitches()
-	if err != nil {
-		log.Fatal(err)
+	if !viper.IsSet("switch.type") {
+		log.Fatal("missing configuration for switch (switch.type)")
 	}
 
-	if len(scs) == 0 {
-		log.Fatal("no multi_purpose_gpio switch found")
+	if !viper.IsSet("switch.name") {
+		log.Fatal("missing configuration for switch (switch.name)")
 	}
 
-	sc := scs[0]
+	switchType := viper.GetString("switch.type")
+	switchName := viper.GetString("switch.name")
 
-	sw := mpGPIO.NewMPSwitchGPIO(mpGPIO.Switch(sc),
-		mpGPIO.EventHandler(rpcSwitch.PublishDeviceUpdate))
+	switch switchType {
+	case "multi_purpose_gpio":
+		sc, err := getMPGPIOSwitchConfig(switchName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		sw := mpGPIO.NewMPSwitchGPIO(mpGPIO.Switch(sc),
+			mpGPIO.EventHandler(rpcSwitch.PublishDeviceUpdate))
 
-	if err := sw.Init(); err != nil {
-		log.Fatal(err)
+		if err := sw.Init(); err != nil {
+			log.Fatal(err)
+		}
+		rpcSwitch.sw = sw
+	case "dummy_switch":
+		sc, err := getDummySwitchConfig(switchName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		sw := ds.NewDummySwitch(ds.Switch(sc), ds.EventHandler(rpcSwitch.PublishDeviceUpdate))
+
+		if err := sw.Init(); err != nil {
+			log.Fatal(err)
+		}
+		rpcSwitch.sw = sw
 	}
 
 	// better call this Addrs(?)
-	serviceName := fmt.Sprintf("shackbus.switch.%s", viper.GetString("switch.name"))
+	serviceName := fmt.Sprintf("shackbus.switch.%s", rpcSwitch.sw.Name())
 
 	username := viper.GetString("nats.username")
 	password := viper.GetString("nats.password")
@@ -268,7 +171,6 @@ func natsServer(cmd *cobra.Command, args []string) {
 	// initalize our service
 	ss.Init()
 
-	rpcSwitch.sw = sw
 	rpcSwitch.service = ss
 	rpcSwitch.pubSubTopic = fmt.Sprintf("%s.state", strings.Replace(serviceName, " ", "_", -1))
 
