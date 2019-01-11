@@ -1,4 +1,20 @@
 # This is a remoteSwitch example configuration file for a GPIO based stackmatch.
+# It is configured for a SJ2W stacker-v3 with an additional relay to toggle a
+# triplexor dummy load (see https://dh1tw.de/4o3a-triplexor). If you don't have
+# a triplexor, just remove that pin from the respective combinations.
+
+# SJ2W stacker-v3 (stackmatch) relay / terminal mapping
+# see: http://sj2w.se/shop/?product=stacker-v3
+# Ant 	A	B	C
+# Relay	K1	K2	K3	STCK
+# ---------------------------
+# A		1	0	0	1
+# B		0	1	0	1
+# C		0	0	1	1
+# A+B	0	0	1	0
+# A+C	0	1	0	0
+# B+C	1	0	0	0
+# A+B+C	0	0	0	0
 
 # Configuration for connection to the NATS broker
 [nats]
@@ -28,37 +44,37 @@ combinations = ["c_ant1", "c_ant2", "c_ant3", "c_ant1_ant2", "c_ant1_ant3", "c_a
 # Combination
 [c_ant1]
 terminals = ["ant1"]
-pins = ["a1", "stck", "triplexor1"]
+pins = ["k1", "stck", "triplexor1"]
 
 # Combination
 [c_ant2]
 terminals = ["ant2"]
-pins = ["a2", "stck", "triplexor2"]
+pins = ["k2", "stck"]
 
 # Combination
 [c_ant3]
 terminals = ["ant3"]
-pins = ["a3", "stck", "triplexor3"]
+pins = ["k3", "stck"]
 
 # Combination
 [c_ant1_ant2]
 terminals = ["ant1", "ant2"]
-pins = ["a3", "triplexor1", "triplexor2"]
+pins = ["k3", "triplexor1"]
 
 # Combination
 [c_ant1_ant3]
 terminals = ["ant1", "ant3"]
-pins = ["a2", "triplexor1", "triplexor3"]
+pins = ["k2", "triplexor1"]
 
 # Combination
 [c_ant2_ant3]
 terminals = ["ant2", "ant3"]
-pins = ["a1", "triplexor2", "triplexor3"]
+pins = ["k1"]
 
 # Combination
 [c_ant1_ant2_ant3]
 terminals = ["ant1", "ant2", "ant3"]
-pins = ["triplexor1", "triplexor2", "triplexor3"]
+pins = ["triplexor1"]
 
 # Terminal (corresponds to the buttons you would see in the UI)
 [ant1]
@@ -76,17 +92,17 @@ name = "3L@EU"
 id = 3
 
 # GPIO Pin / Relay
-[a1]
+[k1]
 inverted = true
 pin = "GPIO13"
 
 # GPIO Pin / Relay
-[a2]
+[k2]
 inverted = true
 pin = "GPIO14"
 
 # GPIO Pin / Relay
-[a3]
+[k3]
 inverted = true
 pin = "GPIO2"
 
@@ -99,13 +115,3 @@ pin = "GPIO16"
 [triplexor1]
 inverted = true
 pin = "GPIO7"
-
-# GPIO Pin / Relay
-[triplexor2]
-inverted = true
-pin = "GPIO0"
-
-# GPIO Pin / Relay
-[triplexor3]
-inverted = true
-pin = "GPIO199"
