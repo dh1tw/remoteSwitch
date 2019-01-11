@@ -89,12 +89,12 @@ body {
 
 .sw-button {
     margin-left: 5px !important;
-    padding-left: 0px !important;
-    padding-right: 0px !important;
-    width: 60px !important;
-    overflow: hidden;
+    padding-left: 5px;
+    padding-right: 5px;
+    min-width: 60px;
+    /* overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: nowrap; */
 }
 
 /* remove the light darkening done by bootstrap of focus */
