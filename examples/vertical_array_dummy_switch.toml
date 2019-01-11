@@ -1,0 +1,60 @@
+# This is a example configuration file for a dummy switch. The dummy
+# switch is great for testing purposes since it does not require any
+# hardware.
+# This example implements the control for a 2 element vertical array.
+# We have 3 terminals, EU(rope), NA(North America) and Omni(-directional).
+# Implemented in hardware, each terminal would drive a respective relay.
+
+# Configuration for connection to the NATS broker
+[nats]
+broker-url = "localhost"
+broker-port = 4222
+username = ""
+password = ""
+
+# Here we specify the type and configuration key of the switch.
+[switch]
+name = "myswitch"
+type = "dummy_switch"
+# type = "multi_purpose_gpio"
+# type = "stackmatch_gpio"
+# type = "ea4tx_remotebox"
+
+[myswitch]
+name = "80m 2el Array"
+id = 3 #order for the graphical representation in the GUI
+# The exclusive parameter of a switch indicates if one terminal (button) can be
+# selected on several ports at the same time. This parameter is only
+# relevant if the switch has more than one port.
+exclusive = true
+# ports contains a list of keys refering to the ports of this switch.
+# since our Vertical Array switch only has one switch, the list only
+# includes a single port. A 6x2 antenna switch would have for example
+# a second port.
+ports = ["port_a"]
+
+# Port for myswitch
+[port_a]
+name = "A" # port name
+# id sets the order of this port for graphical representation in the GUI.
+# In this case, since we only have one port, the parameter can be anything.
+id = 0
+exclusive = true # allow only one terminal to be set at any time
+# terminals contains a list of keys refereing to the terminals of this port.
+terminals = ["term1", "term2", "term3"]
+
+# Terminals for port_a
+[term1]
+name = "EU" # name is the label to be shown in the GUI for this terminal
+# id sets the order of this terminal for the graphical representation in the GUI.
+# Since the order has been set to 3, this terminal will be the last of the
+# three shown in the GUI.
+id = 3
+
+[term2]
+name = "NA"
+id = 1
+
+[term3]
+name = "Omni"
+id = 2
