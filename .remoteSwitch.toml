@@ -1,133 +1,143 @@
-[web]
-host = "127.0.0.1"
-port = 7010
+# This is a remoteSwitch example configuration file. Since this the default
+# configuration file, it is setup for a dummy switch which does not need any
+# hardware. The dummy switch is a great choice for testing purposes.
 
+# This configuration example implements a 6x2 bandswitch. For other examples
+# please check https://github.com/dh1tw/remoteSwitch.
+
+# Configuration for connection to the NATS broker
 [nats]
 broker-url = "localhost"
 broker-port = 4222
 username = ""
 password = ""
 
+# Configuration for the webserver. This might be handy if you want to run the
+# remoteSwitch WebUI server on the same machine.
+[web]
+# by default we only expose the web server on our local machine. However
+# you can replace it with any other network adapter. For all network adapters
+# change the host web.host key to "0.0.0.0"
+host = "127.0.0.1"
+port = 7010
+
+# Here we specify the type and configuration key of the switch.
 [switch]
-name = "mybandswitch"
-# type = "dummy_switch"
-type = "multi_purpose_gpio"
+name = "myswitch"
+type = "dummy_switch"
+# type = "multi_purpose_gpio"
 # type = "stackmatch_gpio"
 # type = "ea4tx_remotebox"
 
-[mybandswitch]
-name = "Bandswitch"
-id = 0
+[myswitch]
+name = "6x2 Bandswitch"
+# In case you have more than one switch, you can set the order of this switch
+# through the id key.
+id = 1
+# The exclusive parameter of a switch indicates if one terminal (button) can be
+# selected on several ports at the same time. This parameter is
+# relevant if the switch has more than one port. In our case, we have two ports
+# and a terminal (antenna) can only be assigned to one port. So exclusive must
+# be set to true.
 exclusive = true
+# ports contains a list of keys refering to the ports of this switch. Our 6x2
+# bandswitch has the 2 (input) ports "port_a" and "port_b". The key names can
+# be arbitrary, as long as the key exists in this config file.
 ports = ["port_a", "port_b"]
 
-# Ports for myBandswitch
+# First Port for myswitch
 [port_a]
-name = "A"
-id = 0
+name = "A" # port name
+# id sets the order of this port for graphical representation in the GUI.
+id = 1
+# the exclusive parameter ensures that only one terminal can be set at any time
+# on this port. With a 6x2 bandswitch we can only select one terminal (antenna)
+# at a time. So exclusive must be set to true.
 exclusive = true
-terminals = ["a_160m", "a_80m", "a_40m", "a_20m", "a_15m", "a_10m", "a_6m", "a_WARC"]
+# terminals contains a list of keys refering to the terminals of this port. The
+# name of the keys can be arbitray, as long as they exist in this config file.
+terminals = ["a_term1", "a_term2", "a_term3", "a_term4", "a_term5", "a_term6"]
 
+# Second Port for myswitch
 [port_b]
 name = "B"
-id = 1
-exclusive = true
-terminals = ["b_160m", "b_80m", "b_40m", "b_20m", "b_15m", "b_10m", "b_6m", "b_WARC"]
-
-# Terminals (GPIO Pins) for a
-[a_160m]
-name = "160m"
-pin = "GPIO3"
-inverted = true
-id = 0
-
-[a_80m]
-name = "80m"
-pin = "GPIO19"
-inverted = true
-id = 1
-
-[a_40m]
-name = "40m"
-pin = "GPIO18"
-inverted = true
 id = 2
+exclusive = true
+terminals = ["b_term1", "b_term2", "b_term3", "b_term4", "b_term5", "b_term6"]
 
-[a_20m]
-name = "20m"
-pin = "GPIO15"
-inverted = true
+# Terminals for port_a
+[a_term1]
+name = "160m" # name is the label to be shown in the GUI for this terminal
+# id sets the order of this terminal for the graphical representation in the GUI.
+# Since the order has been set to 6, this terminal will be the last of the
+# six shown in the GUI for the port_a.
+id = 1
+# pin = "GPIO3" # GPIO pin not needed for the dummy switch
+# inverted = true # not needed for dummy switch
+
+[a_term2]
+name = "80m"
+id = 2
+# pin = "GPIO19"
+# inverted = true
+
+[a_term3]
+name = "40m"
 id = 3
+# pin = "GPIO18"
+# inverted = true
 
-[a_15m]
-name = "15m"
-pin = "GPIO16"
-inverted = true
+[a_term4]
+name = "20m"
 id = 4
+# pin = "GPIO15"
+# inverted = true
 
-[a_10m]
-name = "10m"
-pin = "GPIO2"
-inverted = true
+[a_term5]
+name = "15m"
 id = 5
+# pin = "GPIO16"
+# inverted = true
 
-[a_6m]
-name = "6m"
-pin = "GPIO14"
-inverted = true
+[a_term6]
+name = "10m"
 id = 6
-
-[a_WARC]
-name = "WARC"
-pin = "GPIO13"
-inverted = true
-id = 7
+# pin = "GPIO2"
+# inverted = true
 
 # Terminals (GPIO Pins) for PortB
-[b_160m]
+[b_term1]
 name = "160m"
-pin = "GPIO7"
-inverted = true
-id = 0
-
-[b_80m]
-name = "80m"
-pin = "GPIO0"
-inverted = true
 id = 1
+# pin = "GPIO7"
+# inverted = true
 
-[b_40m]
-name = "40m"
-pin = "GPIO199"
-inverted = true
+[b_term2]
+name = "80m"
 id = 2
+# pin = "GPIO0"
+# inverted = true
 
-[b_20m]
-name = "20m"
-pin = "GPIO1"
-inverted = true
+[b_term3]
+name = "40m"
 id = 3
+# pin = "GPIO199"
+# inverted = true
 
-[b_15m]
-name = "15m"
-pin = "GPIO6"
-inverted = true
+[b_term4]
+name = "20m"
 id = 4
+# pin = "GPIO1"
+# inverted = true
 
-[b_10m]
-name = "10m"
-pin = "GPIO198"
-inverted = true
+[b_term5]
+name = "15m"
 id = 5
+# pin = "GPIO6"
+# inverted = true
 
-[b_6m]
-name = "6m"
-pin = "GPIO12"
-inverted = true
+[b_term6]
+name = "10m"
 id = 6
-
-[b_WARC]
-name = "WARC"
-pin = "GPIO11"
-inverted = true
-id = 7
+# pin = "GPIO198"
+# inverted = true
