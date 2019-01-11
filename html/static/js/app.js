@@ -40,7 +40,6 @@ var vm = new Vue({
 
             if (!(Switch.name in this.Switches)) {
                 this.$set(this.Switches, Switch.name, Switch);
-                console.log(Switch);
             }
         },
 
@@ -69,17 +68,17 @@ var vm = new Vue({
                 if (eventMsg['name'] == 'add') {
                     this.getSwitchObj(eventMsg['device_name']);
 
-                // remove switch
+                    // remove switch
                 } else if (eventMsg['name'] == 'remove') {
                     this.removeSwitch(eventMsg['device_name']);
 
-                // update
+                    // update
                 } else if (eventMsg['name'] == 'update') {
                     updatedDevice = eventMsg['device']
                     switchName = eventMsg['device_name']
                     if (switchName in this.Switches) {
                         // copy values
-                        this.$set(this.Switches, switchName ,updatedDevice);
+                        this.$set(this.Switches, switchName, updatedDevice);
                     }
                 }
             }.bind(this));
@@ -103,11 +102,19 @@ var vm = new Vue({
 
         // send a request to the server to set a particular port
         setPort: function (switchName, portName, terminalName, terminalState) {
+
             this.$http.put("/api/switch/" + switchName + "/port",
                 JSON.stringify({
                     name: portName,
-                    terminals: [{"name":terminalName, "state": terminalState}],
+                    terminals: [{ "name": terminalName, "state": terminalState }],
                 }));
+        },
+        setPorts: function(switchName, portName, terminals) {
+            this.$http.put("/api/switch/" + switchName + "/port",
+            JSON.stringify({
+                name: portName,
+                terminals: terminals,
+            }));
         },
     },
 

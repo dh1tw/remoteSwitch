@@ -1,5 +1,5 @@
 var Button = {
-    template: `<button class="btn sw-button" type="button" v-bind:class="{'btn-success':state, 'btn-primary':inverted_state}" v-on:click="setPort()">
+    template: `<button class="btn sw-button" v-bind:class="{'btn-success':state, 'btn-primary':inverted_state}" v-on:click="setPort()" @contextmenu="clickHandler($event)">
                     {{label}}
                 </button>`,
     props: {
@@ -10,6 +10,12 @@ var Button = {
     mounted: function(){},
     beforeDestroy: function(){},
     methods: {
+        // handle right clicks
+        clickHandler: function(e){
+            this.$emit("set-port-exclusive", this.port, this.label)
+            // omit standard right click menu
+            e.preventDefault();
+        },
         setPort: function(){
             this.$emit("set-port", this.port, this.label, !this.state)
         },

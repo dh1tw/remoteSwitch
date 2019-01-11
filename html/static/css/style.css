@@ -97,6 +97,20 @@ body {
     white-space: nowrap;
 }
 
+/* remove the light darkening done by bootstrap of focus */
+.btn-success:focus {
+    outline: none;
+    background-color:#5cb85c;
+    border-color: #4cae4c;
+}
+
+/* remove the light darkening done by bootstrap of focus */
+.btn-primary:focus {
+    outline: none;
+    background-color: #428bca;
+    border-color: #357ebd;
+}
+
 .hidden {
     /*    display: none;*/
     visibility: hidden;
