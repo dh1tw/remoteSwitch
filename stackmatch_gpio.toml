@@ -1,0 +1,111 @@
+# This is a remoteSwitch example configuration file for a GPIO based stackmatch.
+
+# Configuration for connection to the NATS broker
+[nats]
+broker-url = "localhost"
+broker-port = 4222
+username = ""
+password = ""
+
+# All remoteSwitches are at their core "switches". Here we specify the type
+# and configuration key of the switch.
+[switch]
+name = "first_stackmatch"
+type = "stackmatch_gpio"
+# type = "multi_purpose_gpio"
+# type = "stackmatch_gpio"
+# type = "ea4tx_remotebox"
+
+# This is the main configuration key. The name of the key is arbitrary, however
+# it must be referenced corectly in the [switch] key.
+[first_stackmatch]
+name = "Stackmatch 20m" # name of the stackmatch
+id = 1 # order (helper for consistent visualization)
+# combinations refer to a list of keys holding the terminal/pin cominations
+# supported by this stackmatch.
+combinations = ["c_ant1", "c_ant2", "c_ant3", "c_ant1_ant2", "c_ant1_ant3", "c_ant2_ant3", "c_ant1_ant2_ant3"]
+
+# Combination
+[c_ant1]
+terminals = ["ant1"]
+pins = ["a1", "stck", "triplexor1"]
+
+# Combination
+[c_ant2]
+terminals = ["ant2"]
+pins = ["a2", "stck", "triplexor2"]
+
+# Combination
+[c_ant3]
+terminals = ["ant3"]
+pins = ["a3", "stck", "triplexor3"]
+
+# Combination
+[c_ant1_ant2]
+terminals = ["ant1", "ant2"]
+pins = ["a3", "triplexor1", "triplexor2"]
+
+# Combination
+[c_ant1_ant3]
+terminals = ["ant1", "ant3"]
+pins = ["a2", "triplexor1", "triplexor3"]
+
+# Combination
+[c_ant2_ant3]
+terminals = ["ant2", "ant3"]
+pins = ["a1", "triplexor2", "triplexor3"]
+
+# Combination
+[c_ant1_ant2_ant3]
+terminals = ["ant1", "ant2", "ant3"]
+pins = ["triplexor1", "triplexor2", "triplexor3"]
+
+# Terminal (corresponds to the buttons you would see in the UI)
+[ant1]
+name = "OB11-3"
+id = 1 #order
+
+# Terminal
+[ant2]
+name = "4L"
+id = 2
+
+# Terminal
+[ant3]
+name = "3L@EU"
+id = 3
+
+# GPIO Pin / Relay
+[a1]
+inverted = true
+pin = "GPIO13"
+
+# GPIO Pin / Relay
+[a2]
+inverted = true
+pin = "GPIO14"
+
+# GPIO Pin / Relay
+[a3]
+inverted = true
+pin = "GPIO2"
+
+# GPIO Pin / Relay
+[stck]
+inverted = true
+pin = "GPIO16"
+
+# GPIO Pin / Relay
+[triplexor1]
+inverted = true
+pin = "GPIO7"
+
+# GPIO Pin / Relay
+[triplexor2]
+inverted = true
+pin = "GPIO0"
+
+# GPIO Pin / Relay
+[triplexor3]
+inverted = true
+pin = "GPIO199"

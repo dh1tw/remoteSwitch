@@ -12,6 +12,7 @@ import (
 	sw "github.com/dh1tw/remoteSwitch/switch"
 	ds "github.com/dh1tw/remoteSwitch/switch/dummy_switch"
 	mpGPIO "github.com/dh1tw/remoteSwitch/switch/multi-purpose-switch-gpio"
+	smGPIO "github.com/dh1tw/remoteSwitch/switch/stackmatch_gpio"
 	"github.com/gogo/protobuf/proto"
 	micro "github.com/micro/go-micro"
 	"github.com/micro/go-micro/broker"
@@ -19,7 +20,7 @@ import (
 	natsBroker "github.com/micro/go-plugins/broker/nats"
 	natsReg "github.com/micro/go-plugins/registry/nats"
 	natsTr "github.com/micro/go-plugins/transport/nats"
-	"github.com/nats-io/go-nats"
+	nats "github.com/nats-io/go-nats"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -104,6 +105,17 @@ func natsServer(cmd *cobra.Command, args []string) {
 		}
 		sw := ds.NewDummySwitch(ds.Switch(sc), ds.EventHandler(rpcSwitch.PublishDeviceUpdate))
 
+		if err := sw.Init(); err != nil {
+			log.Fatal(err)
+		}
+		rpcSwitch.sw = sw
+	case "stackmatch_gpio":
+
+		sc, err := getSmGPIOConfig(switchName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		sw := smGPIO.NewStackmatchGPIO(smGPIO.Config(sc), smGPIO.EventHandler(rpcSwitch.PublishDeviceUpdate))
 		if err := sw.Init(); err != nil {
 			log.Fatal(err)
 		}

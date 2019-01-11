@@ -10,8 +10,8 @@ password = ""
 
 [switch]
 name = "mybandswitch"
-type = "dummy_switch"
-# type = "multi_purpose_gpio"
+# type = "dummy_switch"
+type = "multi_purpose_gpio"
 # type = "stackmatch_gpio"
 # type = "ea4tx_remotebox"
 

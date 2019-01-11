@@ -103,16 +103,15 @@ func (g *MPSwitchGPIO) Init() error {
 				name:     pinConfig.Name,
 				inverted: pinConfig.Inverted,
 				id:       pinConfig.ID,
+				pin:      gpioreg.ByName(strings.ToUpper(pinConfig.Pin)),
 			}
 
 			//TBD Handle pin "None" / Empty to disable all relays
-			pin := gpioreg.ByName(strings.ToUpper(pinConfig.Pin))
 
-			if pin == nil {
+			if r.pin == nil {
 				return fmt.Errorf("failed to find pin %s", pinConfig.Pin)
 			}
 
-			r.pin = pin
 			if err := r.setState(false); err != nil {
 				return err
 			}
