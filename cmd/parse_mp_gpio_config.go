@@ -16,8 +16,8 @@ func getMPGPIOSwitchConfig(switchName string) (mpGPIO.SwitchConfig, error) {
 		return sc, fmt.Errorf("missing name parameter for switch %s", switchName)
 	}
 
-	if !viper.IsSet(fmt.Sprintf("%s.id", switchName)) {
-		return sc, fmt.Errorf("missing id parameter for switch %s", switchName)
+	if !viper.IsSet(fmt.Sprintf("%s.index", switchName)) {
+		return sc, fmt.Errorf("missing index parameter for switch %s", switchName)
 	}
 
 	if !viper.IsSet(fmt.Sprintf("%s.exclusive", switchName)) {
@@ -34,7 +34,7 @@ func getMPGPIOSwitchConfig(switchName string) (mpGPIO.SwitchConfig, error) {
 		return sc, fmt.Errorf("name parameter of switch %s must not be empty", switchName)
 	}
 
-	id := viper.GetInt(fmt.Sprintf("%s.id", switchName))
+	index := viper.GetInt(fmt.Sprintf("%s.index", switchName))
 	exclusive := viper.GetBool(fmt.Sprintf("%s.exclusive", switchName))
 	ports := viper.GetStringSlice(fmt.Sprintf("%s.ports", switchName))
 	if len(ports) == 0 {
@@ -42,7 +42,7 @@ func getMPGPIOSwitchConfig(switchName string) (mpGPIO.SwitchConfig, error) {
 	}
 
 	sc.Name = name
-	sc.ID = id
+	sc.Index = index
 	sc.Exclusive = exclusive
 
 	for _, port := range ports {
@@ -69,8 +69,8 @@ func getMPGPIOPortConfig(portName string) (mpGPIO.PortConfig, error) {
 		return pc, fmt.Errorf("missing name parameter for port %s", portName)
 	}
 
-	if !viper.IsSet(fmt.Sprintf("%s.id", portName)) {
-		return pc, fmt.Errorf("missing id parameter for port %s", portName)
+	if !viper.IsSet(fmt.Sprintf("%s.index", portName)) {
+		return pc, fmt.Errorf("missing index parameter for port %s", portName)
 	}
 
 	if !viper.IsSet(fmt.Sprintf("%s.terminals", portName)) {
@@ -83,7 +83,7 @@ func getMPGPIOPortConfig(portName string) (mpGPIO.PortConfig, error) {
 		return pc, fmt.Errorf("name parameter of port %s must not be empty", portName)
 	}
 
-	id := viper.GetInt(fmt.Sprintf("%s.id", portName))
+	index := viper.GetInt(fmt.Sprintf("%s.index", portName))
 	exclusive := viper.GetBool(fmt.Sprintf("%s.exclusive", portName))
 	terminals := viper.GetStringSlice(fmt.Sprintf("%s.terminals", portName))
 	if len(terminals) == 0 {
@@ -91,7 +91,7 @@ func getMPGPIOPortConfig(portName string) (mpGPIO.PortConfig, error) {
 	}
 
 	pc.Name = name
-	pc.ID = id
+	pc.Index = index
 	pc.Exclusive = exclusive
 	pc.Terminals = make([]mpGPIO.PinConfig, 0, len(terminals))
 
@@ -115,8 +115,8 @@ func getMPGPIOTerminalConfig(terminalName string) (mpGPIO.PinConfig, error) {
 		return pc, fmt.Errorf("missing name parameter for terminal %s", terminalName)
 	}
 
-	if !viper.IsSet(fmt.Sprintf("%s.id", terminalName)) {
-		return pc, fmt.Errorf("missing id parameter for terminal %s", terminalName)
+	if !viper.IsSet(fmt.Sprintf("%s.index", terminalName)) {
+		return pc, fmt.Errorf("missing index parameter for terminal %s", terminalName)
 	}
 
 	if !viper.IsSet(fmt.Sprintf("%s.pin", terminalName)) {
@@ -134,12 +134,12 @@ func getMPGPIOTerminalConfig(terminalName string) (mpGPIO.PinConfig, error) {
 		return pc, fmt.Errorf("pin parameter of terminal %s must not be empty", terminalName)
 	}
 
-	id := viper.GetInt(fmt.Sprintf("%s.id", terminalName))
+	index := viper.GetInt(fmt.Sprintf("%s.index", terminalName))
 	inverted := viper.GetBool(fmt.Sprintf("%s.inverted", terminalName))
 
 	pc.Name = name
 	pc.Pin = pin
-	pc.ID = id
+	pc.Index = index
 	pc.Inverted = inverted
 
 	return pc, nil

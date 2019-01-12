@@ -11,7 +11,7 @@ import (
 type DummySwitch struct {
 	sync.RWMutex
 	name         string
-	id           int
+	index        int
 	exclusive    bool
 	ports        map[string]*port
 	switchConfig SwitchConfig
@@ -23,21 +23,21 @@ type port struct {
 	activeTerminals map[string]*terminal
 	terminals       map[string]*terminal
 	exclusive       bool
-	id              int
+	index           int
 }
 
 type terminal struct {
 	name     string
 	inverted bool
 	state    bool
-	id       int
+	index    int
 }
 
 func NewDummySwitch(options ...func(*DummySwitch)) *DummySwitch {
 
 	d := &DummySwitch{
 		name:  "my DummySwitch",
-		id:    0,
+		index: 0,
 		ports: make(map[string]*port),
 	}
 
@@ -50,7 +50,7 @@ func NewDummySwitch(options ...func(*DummySwitch)) *DummySwitch {
 
 func (d *DummySwitch) Init() error {
 	d.name = d.switchConfig.Name
-	d.id = d.switchConfig.ID
+	d.index = d.switchConfig.Index
 	d.exclusive = d.switchConfig.Exclusive
 
 	for _, pConfig := range d.switchConfig.Ports {
@@ -62,13 +62,13 @@ func (d *DummySwitch) Init() error {
 			terminals:       make(map[string]*terminal),
 			activeTerminals: make(map[string]*terminal),
 			exclusive:       pConfig.Exclusive,
-			id:              pConfig.ID,
+			index:           pConfig.Index,
 		}
 
 		for _, pinConfig := range pConfig.Terminals {
 			r := &terminal{
-				name: pinConfig.Name,
-				id:   pinConfig.ID,
+				name:  pinConfig.Name,
+				index: pinConfig.Index,
 			}
 
 			p.terminals[pinConfig.Name] = r
@@ -193,22 +193,22 @@ func (d *DummySwitch) Serialize() sw.Device {
 func (p *port) serialize() sw.Port {
 	swPort := sw.Port{
 		Name:      p.name,
-		ID:        p.id,
+		Index:     p.index,
 		Terminals: []sw.Terminal{},
 	}
 
 	for _, r := range p.terminals {
 		t := sw.Terminal{
 			Name:  r.name,
-			ID:    r.id,
+			Index: r.index,
 			State: r.state,
 		}
 		swPort.Terminals = append(swPort.Terminals, t)
 	}
 
-	// sort the Terminals by id
+	// sort the Terminals by index
 	sort.Slice(swPort.Terminals, func(i, j int) bool {
-		return swPort.Terminals[i].ID < swPort.Terminals[j].ID
+		return swPort.Terminals[i].Index < swPort.Terminals[j].Index
 	})
 
 	return swPort
@@ -220,7 +220,8 @@ func (p *port) serialize() sw.Port {
 func (d *DummySwitch) serialize() sw.Device {
 
 	dev := sw.Device{
-		Name: d.name,
+		Name:  d.name,
+		Index: d.index,
 	}
 
 	// serialize all ports
@@ -229,9 +230,9 @@ func (d *DummySwitch) serialize() sw.Device {
 		dev.Ports = append(dev.Ports, swPort)
 	}
 
-	// sort the ports by ID
+	// sort the ports by index
 	sort.Slice(dev.Ports, func(i, j int) bool {
-		return dev.Ports[i].ID < dev.Ports[j].ID
+		return dev.Ports[i].Index < dev.Ports[j].Index
 	})
 
 	return dev

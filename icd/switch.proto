@@ -12,7 +12,7 @@ message None {}
 
 message Terminal{
     string name = 1;
-    int32 id = 2;
+    int32 index = 2;
     bool state = 3;
 }
 
@@ -27,14 +27,14 @@ message PortRequest{
 
 message Port{
     string name = 1;
-    int32 id = 2;
+    int32 index = 2;
     repeated Terminal terminals = 3;
     bool exclusive = 4;
 }
 
 message Device{
     string name = 1;
-    int32 id = 2;
+    int32 index = 2;
     repeated Port ports = 3;
     bool exclusive = 4;
 }

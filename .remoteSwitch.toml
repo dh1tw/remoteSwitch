@@ -32,8 +32,8 @@ type = "dummy_switch"
 [myswitch]
 name = "6x2 Bandswitch"
 # In case you have more than one switch, you can set the order of this switch
-# through the id key.
-id = 1
+# through the index key.
+index = 1
 # The exclusive parameter of a switch indicates if one terminal (button) can be
 # selected on several ports at the same time. This parameter is
 # relevant if the switch has more than one port. In our case, we have two ports
@@ -48,8 +48,8 @@ ports = ["port_a", "port_b"]
 # First Port for myswitch
 [port_a]
 name = "A" # port name
-# id sets the order of this port for graphical representation in the GUI.
-id = 1
+# index sets the order of this port for graphical representation in the GUI.
+index = 1
 # the exclusive parameter ensures that only one terminal can be set at any time
 # on this port. With a 6x2 bandswitch we can only select one terminal (antenna)
 # at a time. So exclusive must be set to true.
@@ -61,83 +61,83 @@ terminals = ["a_term1", "a_term2", "a_term3", "a_term4", "a_term5", "a_term6"]
 # Second Port for myswitch
 [port_b]
 name = "B"
-id = 2
+index = 2
 exclusive = true
 terminals = ["b_term1", "b_term2", "b_term3", "b_term4", "b_term5", "b_term6"]
 
 # Terminals for port_a
 [a_term1]
 name = "160m" # name is the label to be shown in the GUI for this terminal
-# id sets the order of this terminal for the graphical representation in the GUI.
+# index sets the order of this terminal for the graphical representation in the GUI.
 # Since the order has been set to 6, this terminal will be the last of the
 # six shown in the GUI for the port_a.
-id = 1
+index = 1
 # pin = "GPIO3" # GPIO pin not needed for the dummy switch
 # inverted = true # not needed for dummy switch
 
 [a_term2]
 name = "80m"
-id = 2
+index = 2
 # pin = "GPIO19"
 # inverted = true
 
 [a_term3]
 name = "40m"
-id = 3
+index = 3
 # pin = "GPIO18"
 # inverted = true
 
 [a_term4]
 name = "20m"
-id = 4
+index = 4
 # pin = "GPIO15"
 # inverted = true
 
 [a_term5]
 name = "15m"
-id = 5
+index = 5
 # pin = "GPIO16"
 # inverted = true
 
 [a_term6]
 name = "10m"
-id = 6
+index = 6
 # pin = "GPIO2"
 # inverted = true
 
 # Terminals (GPIO Pins) for PortB
 [b_term1]
 name = "160m"
-id = 1
+index = 1
 # pin = "GPIO7"
 # inverted = true
 
 [b_term2]
 name = "80m"
-id = 2
+index = 2
 # pin = "GPIO0"
 # inverted = true
 
 [b_term3]
 name = "40m"
-id = 3
+index = 3
 # pin = "GPIO199"
 # inverted = true
 
 [b_term4]
 name = "20m"
-id = 4
+index = 4
 # pin = "GPIO1"
 # inverted = true
 
 [b_term5]
 name = "15m"
-id = 5
+index = 5
 # pin = "GPIO6"
 # inverted = true
 
 [b_term6]
 name = "10m"
-id = 6
+index = 6
 # pin = "GPIO198"
 # inverted = true

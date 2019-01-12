@@ -21,9 +21,9 @@ type = "multi_purpose_gpio"
 # it must be referenced corectly in the [switch] key.
 [mybandswitch]
 name = "My 8x2 Bandswitch"
-# setting id = 2 means that it will be visualized in the GUI after all other
-# switches with an id < 2 and before all other switched with an id > 2.
-id = 2
+# setting index = 2 means that it will be visualized in the GUI after all other
+# switches with an index < 2 and before all other switched with an index > 2.
+index = 2
 # The exclusive parameter of a switch indicates if one terminal (button) can be
 # selected on several ports at the same time. This parameter is
 # relevant if the switch has more than one port. In our case, we have two ports
@@ -38,8 +38,8 @@ ports = ["port_a", "port_b"]
 # First port for myBandswitch
 [port_a]
 name = "A"
-# id sets the order of this port for graphical representation in the GUI.
-id = 0
+# index sets the order of this port for graphical representation in the GUI.
+index = 0
 # the exclusive parameter ensures that only one terminal can be set at any time
 # on this port. With a 8x2 bandswitch we can only select one terminal (antenna)
 # at a time. So exclusive must be set to true.
@@ -51,7 +51,7 @@ terminals = ["a_160m", "a_80m", "a_40m", "a_20m", "a_15m", "a_10m", "a_6m", "a_W
 # Second port for myBandswitch
 [port_b]
 name = "B"
-id = 1
+index = 1
 exclusive = true
 terminals = ["b_160m", "b_80m", "b_40m", "b_20m", "b_15m", "b_10m", "b_6m", "b_WARC"]
 
@@ -64,98 +64,98 @@ pin = "GPIO3"
 # some relay boards need inverted switching logic. With this parameter, the
 # logic on this gpio pin will be inverted.
 inverted = true
-# id sets the order of this terminal for the graphical representation in the GUI.
+# index sets the order of this terminal for the graphical representation in the GUI.
 # Since the order has been set to 0, this terminal will be the first of the
 # eight shown in the GUI for the port_a.
-id = 0
+index = 0
 
 [a_80m]
 name = "80m"
 pin = "GPIO19"
 inverted = true
-id = 1
+index = 1
 
 [a_40m]
 name = "40m"
 pin = "GPIO18"
 inverted = true
-id = 2
+index = 2
 
 [a_20m]
 name = "20m"
 pin = "GPIO15"
 inverted = true
-id = 3
+index = 3
 
 [a_15m]
 name = "15m"
 pin = "GPIO16"
 inverted = true
-id = 4
+index = 4
 
 [a_10m]
 name = "10m"
 pin = "GPIO2"
 inverted = true
-id = 5
+index = 5
 
 [a_6m]
 name = "6m"
 pin = "GPIO14"
 inverted = true
-id = 6
+index = 6
 
 [a_WARC]
 name = "WARC"
 pin = "GPIO13"
 inverted = true
-id = 7
+index = 7
 
 # Terminals (GPIO Pins) for port_b
 [b_160m]
 name = "160m"
 pin = "GPIO7"
 inverted = true
-id = 0
+index = 0
 
 [b_80m]
 name = "80m"
 pin = "GPIO0"
 inverted = true
-id = 1
+index = 1
 
 [b_40m]
 name = "40m"
 pin = "GPIO199"
 inverted = true
-id = 2
+index = 2
 
 [b_20m]
 name = "20m"
 pin = "GPIO1"
 inverted = true
-id = 3
+index = 3
 
 [b_15m]
 name = "15m"
 pin = "GPIO6"
 inverted = true
-id = 4
+index = 4
 
 [b_10m]
 name = "10m"
 pin = "GPIO198"
 inverted = true
-id = 5
+index = 5
 
 [b_6m]
 name = "6m"
 pin = "GPIO12"
 inverted = true
-id = 6
+index = 6
 
 [b_WARC]
 name = "WARC"
 pin = "GPIO11"
 inverted = true
-id = 7
+index = 7

@@ -16,8 +16,8 @@ func getSmGPIOConfig(smName string) (smGPIO.SmConfig, error) {
 		return sc, fmt.Errorf("missing name parameter for stackmatch %s", smName)
 	}
 
-	if !viper.IsSet(fmt.Sprintf("%s.id", smName)) {
-		return sc, fmt.Errorf("missing id parameter for stackmatch %s", smName)
+	if !viper.IsSet(fmt.Sprintf("%s.index", smName)) {
+		return sc, fmt.Errorf("missing index parameter for stackmatch %s", smName)
 	}
 
 	if !viper.IsSet(fmt.Sprintf("%s.combinations", smName)) {
@@ -30,7 +30,7 @@ func getSmGPIOConfig(smName string) (smGPIO.SmConfig, error) {
 		return sc, fmt.Errorf("name parameter of stackmatch %s must not be empty", smName)
 	}
 
-	id := viper.GetInt(fmt.Sprintf("%s.id", smName))
+	index := viper.GetInt(fmt.Sprintf("%s.index", smName))
 
 	combinations := viper.GetStringSlice(fmt.Sprintf("%s.combinations", smName))
 	if len(combinations) == 0 {
@@ -38,7 +38,7 @@ func getSmGPIOConfig(smName string) (smGPIO.SmConfig, error) {
 	}
 
 	sc.Name = name
-	sc.ID = id
+	sc.Index = index
 
 	for _, combination := range combinations {
 		c, err := getSmGPIOCombinationConfig(combination)
@@ -110,8 +110,8 @@ func getSmGPIOTerminalConfig(terminalName string) (smGPIO.TerminalConfig, error)
 		return tc, fmt.Errorf("missing name parameter for terminal %s", terminalName)
 	}
 
-	if !viper.IsSet(fmt.Sprintf("%s.id", terminalName)) {
-		return tc, fmt.Errorf("missing id parameter for terminal %s", terminalName)
+	if !viper.IsSet(fmt.Sprintf("%s.index", terminalName)) {
+		return tc, fmt.Errorf("missing index parameter for terminal %s", terminalName)
 	}
 
 	// get the values
@@ -120,10 +120,10 @@ func getSmGPIOTerminalConfig(terminalName string) (smGPIO.TerminalConfig, error)
 		return tc, fmt.Errorf("name parameter of terminal %s must not be empty", terminalName)
 	}
 
-	id := viper.GetInt(fmt.Sprintf("%s.id", terminalName))
+	index := viper.GetInt(fmt.Sprintf("%s.index", terminalName))
 
 	tc.Name = name
-	tc.ID = id
+	tc.Index = index
 
 	return tc, nil
 }

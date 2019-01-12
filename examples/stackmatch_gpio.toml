@@ -36,7 +36,7 @@ type = "stackmatch_gpio"
 # it must be referenced corectly in the [switch] key.
 [first_stackmatch]
 name = "Stackmatch 20m" # name of the stackmatch
-id = 1 # order (helper for consistent visualization)
+index = 1 # order (helper for consistent visualization)
 # combinations refer to a list of keys holding the terminal/pin cominations
 # supported by this stackmatch.
 combinations = ["c_ant1", "c_ant2", "c_ant3", "c_ant1_ant2", "c_ant1_ant3", "c_ant2_ant3", "c_ant1_ant2_ant3"]
@@ -79,17 +79,17 @@ pins = ["triplexor1"]
 # Terminal (corresponds to the buttons you would see in the UI)
 [ant1]
 name = "OB11-3"
-id = 1 #order
+index = 1 #order
 
 # Terminal
 [ant2]
 name = "4L"
-id = 2
+index = 2
 
 # Terminal
 [ant3]
 name = "3L@EU"
-id = 3
+index = 3
 
 # GPIO Pin / Relay
 [k1]

@@ -12,7 +12,7 @@ func Switch(sc SwitchConfig) func(*DummySwitch) {
 // SwitchConfig describes a switch which is a collection of ports.
 type SwitchConfig struct {
 	Name      string
-	ID        int
+	Index     int
 	Exclusive bool
 	Ports     []PortConfig
 }
@@ -21,15 +21,15 @@ type SwitchConfig struct {
 // is injected through the functional option "Port" during construction of BandswitchGPIO.
 type PortConfig struct {
 	Name      string
-	ID        int
+	Index     int
 	Exclusive bool
 	Terminals []PinConfig
 }
 
 // PinConfig describes a gpio pin.
 type PinConfig struct {
-	Name string
-	ID   int
+	Name  string
+	Index int
 }
 
 // EventHandler sets a callback function through which the bandswitch

@@ -116,6 +116,12 @@ var vm = new Vue({
                 terminals: terminals,
             }));
         },
+        sortByKey: function(array, key) {
+            return array.sort(function(a, b) {
+                var x = a[key]; var y = b[key];
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            });
+        }
     },
 
     computed: {
@@ -125,6 +131,15 @@ var vm = new Vue({
                 return false;
             }
             return true;
-        }
+        },
+        sortedSwitches: function (){
+            var switches = []
+            for (sw in this.Switches) {
+                switches.push(this.Switches[sw])
+            }
+            console.log(switches)
+            this.sortByKey(switches, "index")
+            return switches
+        },
     }
 });

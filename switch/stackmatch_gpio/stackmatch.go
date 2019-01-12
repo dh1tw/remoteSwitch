@@ -21,7 +21,7 @@ type SmGPIO struct {
 	sync.RWMutex
 	name         string
 	portName     string
-	id           int
+	index        int
 	combinations map[string]*combination
 	terminals    []*terminal
 	pins         []*pin
@@ -41,7 +41,7 @@ type combination struct {
 // name is typically shown in the GUI as a selectable item.
 type terminal struct {
 	name  string
-	id    int
+	index int
 	state bool
 }
 
@@ -58,7 +58,7 @@ func NewStackmatchGPIO(options ...func(*SmGPIO)) *SmGPIO {
 
 	s := &SmGPIO{
 		name:         "myStackmatch",
-		id:           100,
+		index:        100,
 		portName:     "SM",
 		combinations: make(map[string]*combination),
 		terminals:    []*terminal{},
@@ -91,7 +91,7 @@ func (s *SmGPIO) Init() error {
 	}
 
 	s.name = s.config.Name
-	s.id = s.config.ID
+	s.index = s.config.Index
 
 	// in these maps we will store temporarily the terminals and pins
 	// maps are used just for de-duplication
@@ -135,8 +135,8 @@ func (s *SmGPIO) Init() error {
 			//only create new terminal if it doesn't exist yet
 			if !ok {
 				newTerminal = &terminal{
-					name: tc.Name,
-					id:   tc.ID,
+					name:  tc.Name,
+					index: tc.Index,
 				}
 				terminals[tc.Name] = newTerminal
 			}
@@ -275,7 +275,7 @@ func (s *SmGPIO) GetPort(portName string) (sw.Port, error) {
 
 	p := sw.Port{
 		Name:      s.portName,
-		ID:        0,
+		Index:     0,
 		Terminals: s.serializeTerminals(),
 	}
 
@@ -289,15 +289,15 @@ func (s *SmGPIO) serializeTerminals() []sw.Terminal {
 	for _, term := range s.terminals {
 		t := sw.Terminal{
 			Name:  term.name,
-			ID:    term.id,
+			Index: term.index,
 			State: term.state,
 		}
 		terminals = append(terminals, t)
 	}
 
-	// sort the Terminals by id
+	// sort the Terminals by index
 	sort.Slice(terminals, func(i, j int) bool {
-		return terminals[i].ID < terminals[j].ID
+		return terminals[i].Index < terminals[j].Index
 	})
 
 	return terminals
@@ -313,12 +313,12 @@ func (s *SmGPIO) Serialize() sw.Device {
 func (s *SmGPIO) serialize() sw.Device {
 
 	dev := sw.Device{
-		Name: s.name,
-		ID:   s.id,
+		Name:  s.name,
+		Index: s.index,
 		Ports: []sw.Port{
 			sw.Port{
 				Name:      s.portName,
-				ID:        0, // fixed, since a stackmatch only has one port
+				Index:     0, // fixed, since a stackmatch only has one port
 				Terminals: s.serializeTerminals(),
 			},
 		},

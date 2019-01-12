@@ -243,7 +243,7 @@ func (r *rpcSwitch) GetPort(ctx context.Context, portName *sbSwitch.PortName, po
 
 	myPort := portToSbPort(p)
 	port.Name = myPort.GetName()
-	port.Id = myPort.GetId()
+	port.Index = myPort.GetIndex()
 	port.Exclusive = myPort.GetExclusive()
 	port.Terminals = myPort.GetTerminals()
 
@@ -273,7 +273,7 @@ func (s *rpcSwitch) GetDevice(ctx context.Context, in *sbSwitch.None, sbDevice *
 	myDevice := deviceToSbDevice(s.sw.Serialize())
 
 	sbDevice.Name = myDevice.GetName()
-	sbDevice.Id = myDevice.GetId()
+	sbDevice.Index = myDevice.GetIndex()
 	sbDevice.Exclusive = myDevice.GetExclusive()
 	sbDevice.Ports = myDevice.GetPorts()
 
@@ -283,8 +283,8 @@ func (s *rpcSwitch) GetDevice(ctx context.Context, in *sbSwitch.None, sbDevice *
 func deviceToSbDevice(device sw.Device) *sbSwitch.Device {
 
 	sbDevice := &sbSwitch.Device{
-		Name: device.Name,
-		Id:   int32(device.ID),
+		Name:  device.Name,
+		Index: int32(device.Index),
 		// Exclusive: device.Exclusive,
 		Ports: []*sbSwitch.Port{},
 	}
@@ -298,8 +298,8 @@ func deviceToSbDevice(device sw.Device) *sbSwitch.Device {
 func portToSbPort(port sw.Port) *sbSwitch.Port {
 
 	sbPort := &sbSwitch.Port{
-		Name: port.Name,
-		Id:   int32(port.ID),
+		Name:  port.Name,
+		Index: int32(port.Index),
 		// Exclusive: port.Exclusive,
 		Terminals: []*sbSwitch.Terminal{},
 	}
@@ -307,7 +307,7 @@ func portToSbPort(port sw.Port) *sbSwitch.Port {
 	for _, t := range port.Terminals {
 		sbTerminal := &sbSwitch.Terminal{
 			Name:  t.Name,
-			Id:    int32(t.ID),
+			Index: int32(t.Index),
 			State: t.State,
 		}
 		sbPort.Terminals = append(sbPort.Terminals, sbTerminal)

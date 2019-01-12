@@ -17,7 +17,7 @@ import (
 type MPSwitchGPIO struct {
 	sync.Mutex
 	name         string
-	id           int
+	index        int
 	exclusive    bool
 	ports        map[string]*port
 	switchConfig SwitchConfig
@@ -31,7 +31,7 @@ type port struct {
 	activeTerminals map[string]*terminal
 	terminals       map[string]*terminal
 	exclusive       bool
-	id              int
+	index           int
 }
 
 // terminal represents a particular GPIO pin. This struct holds the
@@ -41,7 +41,7 @@ type terminal struct {
 	inverted bool
 	state    bool
 	pin      gpio.PinOut
-	id       int
+	index    int
 }
 
 // NewMPSwitchGPIO is the constructor for a Multi Purpose GPIO switch.
@@ -50,7 +50,7 @@ func NewMPSwitchGPIO(options ...func(*MPSwitchGPIO)) *MPSwitchGPIO {
 
 	g := &MPSwitchGPIO{
 		name:  "My Bandswitch",
-		id:    0,
+		index: 0,
 		ports: make(map[string]*port),
 	}
 
@@ -83,7 +83,7 @@ func (g *MPSwitchGPIO) Init() error {
 	}
 
 	g.name = g.switchConfig.Name
-	g.id = g.switchConfig.ID
+	g.index = g.switchConfig.Index
 	g.exclusive = g.switchConfig.Exclusive
 
 	for _, pConfig := range g.switchConfig.Ports {
@@ -95,14 +95,14 @@ func (g *MPSwitchGPIO) Init() error {
 			terminals:       make(map[string]*terminal),
 			activeTerminals: make(map[string]*terminal),
 			exclusive:       pConfig.Exclusive,
-			id:              pConfig.ID,
+			index:           pConfig.Index,
 		}
 
 		for _, pinConfig := range pConfig.Terminals {
 			r := &terminal{
 				name:     pinConfig.Name,
 				inverted: pinConfig.Inverted,
-				id:       pinConfig.ID,
+				index:    pinConfig.Index,
 				pin:      gpioreg.ByName(strings.ToUpper(pinConfig.Pin)),
 			}
 
@@ -240,22 +240,22 @@ func (g *MPSwitchGPIO) Serialize() sw.Device {
 func (p *port) serialize() sw.Port {
 	swPort := sw.Port{
 		Name:      p.name,
-		ID:        p.id,
+		Index:     p.index,
 		Terminals: []sw.Terminal{},
 	}
 
 	for _, r := range p.terminals {
 		t := sw.Terminal{
 			Name:  r.name,
-			ID:    r.id,
+			Index: r.index,
 			State: r.getState(),
 		}
 		swPort.Terminals = append(swPort.Terminals, t)
 	}
 
-	// sort the Terminals by id
+	// sort the Terminals by index
 	sort.Slice(swPort.Terminals, func(i, j int) bool {
-		return swPort.Terminals[i].ID < swPort.Terminals[j].ID
+		return swPort.Terminals[i].Index < swPort.Terminals[j].Index
 	})
 
 	return swPort
@@ -267,7 +267,8 @@ func (p *port) serialize() sw.Port {
 func (g *MPSwitchGPIO) serialize() sw.Device {
 
 	dev := sw.Device{
-		Name: g.name,
+		Name:  g.name,
+		Index: g.index,
 	}
 
 	// serialize all ports
@@ -276,9 +277,9 @@ func (g *MPSwitchGPIO) serialize() sw.Device {
 		dev.Ports = append(dev.Ports, swPort)
 	}
 
-	// sort the ports by ID
+	// sort the ports by index
 	sort.Slice(dev.Ports, func(i, j int) bool {
-		return dev.Ports[i].ID < dev.Ports[j].ID
+		return dev.Ports[i].Index < dev.Ports[j].Index
 	})
 
 	return dev

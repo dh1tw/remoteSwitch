@@ -10,18 +10,18 @@ type Switcher interface {
 
 type Device struct {
 	Name  string `json:"name,omitempty"`
-	ID    int    `json:"id,omitempty"`
+	Index int    `json:"index,omitempty"`
 	Ports []Port `json:"ports,omitempty"`
 }
 
 type Port struct {
 	Name      string     `json:"name,omitempty"`
-	ID        int        `json:"id,omitempty"`
+	Index     int        `json:"index,omitempty"`
 	Terminals []Terminal `json:"terminals,omitempty"`
 }
 
 type Terminal struct {
 	Name  string `json:"name,omitempty"`
-	ID    int    `json:"id,omitempty"`
+	Index int    `json:"index,omitempty"`
 	State bool   `json:"state,omitempty"`
 }

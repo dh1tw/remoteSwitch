@@ -12,7 +12,7 @@ func Switch(sc SwitchConfig) func(*MPSwitchGPIO) {
 // SwitchConfig describes a switch which is a collection of ports.
 type SwitchConfig struct {
 	Name      string
-	ID        int
+	Index     int
 	Exclusive bool
 	Ports     []PortConfig
 }
@@ -21,7 +21,7 @@ type SwitchConfig struct {
 // is injected through the functional option "Port" during construction of BandswitchGPIO.
 type PortConfig struct {
 	Name      string
-	ID        int
+	Index     int
 	Exclusive bool
 	Terminals []PinConfig
 }
@@ -31,7 +31,7 @@ type PinConfig struct {
 	Name     string
 	Pin      string
 	Inverted bool
-	ID       int
+	Index    int
 }
 
 // EventHandler sets a callback function through which the bandswitch

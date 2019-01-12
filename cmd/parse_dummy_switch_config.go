@@ -16,8 +16,8 @@ func getDummySwitchConfig(switchName string) (ds.SwitchConfig, error) {
 		return sc, fmt.Errorf("missing name parameter for switch %s", switchName)
 	}
 
-	if !viper.IsSet(fmt.Sprintf("%s.id", switchName)) {
-		return sc, fmt.Errorf("missing id parameter for switch %s", switchName)
+	if !viper.IsSet(fmt.Sprintf("%s.index", switchName)) {
+		return sc, fmt.Errorf("missing index parameter for switch %s", switchName)
 	}
 
 	if !viper.IsSet(fmt.Sprintf("%s.exclusive", switchName)) {
@@ -34,7 +34,7 @@ func getDummySwitchConfig(switchName string) (ds.SwitchConfig, error) {
 		return sc, fmt.Errorf("name parameter of switch %s must not be empty", switchName)
 	}
 
-	id := viper.GetInt(fmt.Sprintf("%s.id", switchName))
+	index := viper.GetInt(fmt.Sprintf("%s.index", switchName))
 	exclusive := viper.GetBool(fmt.Sprintf("%s.exclusive", switchName))
 	ports := viper.GetStringSlice(fmt.Sprintf("%s.ports", switchName))
 	if len(ports) == 0 {
@@ -42,7 +42,7 @@ func getDummySwitchConfig(switchName string) (ds.SwitchConfig, error) {
 	}
 
 	sc.Name = name
-	sc.ID = id
+	sc.Index = index
 	sc.Exclusive = exclusive
 
 	for _, port := range ports {
@@ -69,8 +69,8 @@ func getDummySwitchPortConfig(portName string) (ds.PortConfig, error) {
 		return pc, fmt.Errorf("missing name parameter for port %s", portName)
 	}
 
-	if !viper.IsSet(fmt.Sprintf("%s.id", portName)) {
-		return pc, fmt.Errorf("missing id parameter for port %s", portName)
+	if !viper.IsSet(fmt.Sprintf("%s.index", portName)) {
+		return pc, fmt.Errorf("missing index parameter for port %s", portName)
 	}
 
 	if !viper.IsSet(fmt.Sprintf("%s.terminals", portName)) {
@@ -83,7 +83,7 @@ func getDummySwitchPortConfig(portName string) (ds.PortConfig, error) {
 		return pc, fmt.Errorf("name parameter of port %s must not be empty", portName)
 	}
 
-	id := viper.GetInt(fmt.Sprintf("%s.id", portName))
+	index := viper.GetInt(fmt.Sprintf("%s.index", portName))
 	exclusive := viper.GetBool(fmt.Sprintf("%s.exclusive", portName))
 	terminals := viper.GetStringSlice(fmt.Sprintf("%s.terminals", portName))
 	if len(terminals) == 0 {
@@ -91,7 +91,7 @@ func getDummySwitchPortConfig(portName string) (ds.PortConfig, error) {
 	}
 
 	pc.Name = name
-	pc.ID = id
+	pc.Index = index
 	pc.Exclusive = exclusive
 	pc.Terminals = make([]ds.PinConfig, 0, len(terminals))
 
@@ -115,8 +115,8 @@ func getDummySwitchTerminalConfig(terminalName string) (ds.PinConfig, error) {
 		return pc, fmt.Errorf("missing name parameter for terminal %s", terminalName)
 	}
 
-	if !viper.IsSet(fmt.Sprintf("%s.id", terminalName)) {
-		return pc, fmt.Errorf("missing id parameter for terminal %s", terminalName)
+	if !viper.IsSet(fmt.Sprintf("%s.index", terminalName)) {
+		return pc, fmt.Errorf("missing index parameter for terminal %s", terminalName)
 	}
 
 	// get the values
@@ -125,10 +125,10 @@ func getDummySwitchTerminalConfig(terminalName string) (ds.PinConfig, error) {
 		return pc, fmt.Errorf("name parameter of terminal %s must not be empty", terminalName)
 	}
 
-	id := viper.GetInt(fmt.Sprintf("%s.id", terminalName))
+	index := viper.GetInt(fmt.Sprintf("%s.index", terminalName))
 
 	pc.Name = name
-	pc.ID = id
+	pc.Index = index
 
 	return pc, nil
 }

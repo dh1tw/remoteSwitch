@@ -22,7 +22,7 @@ type = "dummy_switch"
 
 [myswitch]
 name = "80m 2el Array"
-id = 3 #order for the graphical representation in the GUI
+index = 3 #order for the graphical representation in the GUI
 # The exclusive parameter of a switch indicates if one terminal (button) can be
 # selected on several ports at the same time. This parameter is only
 # relevant if the switch has more than one port.
@@ -36,9 +36,9 @@ ports = ["port_a"]
 # Port for myswitch
 [port_a]
 name = "A" # port name
-# id sets the order of this port for graphical representation in the GUI.
+# index sets the order of this port for graphical representation in the GUI.
 # In this case, since we only have one port, the parameter can be anything.
-id = 0
+index = 0
 exclusive = true # allow only one terminal to be set at any time
 # terminals contains a list of keys refereing to the terminals of this port.
 terminals = ["term1", "term2", "term3"]
@@ -46,15 +46,15 @@ terminals = ["term1", "term2", "term3"]
 # Terminals for port_a
 [term1]
 name = "EU" # name is the label to be shown in the GUI for this terminal
-# id sets the order of this terminal for the graphical representation in the GUI.
+# index sets the order of this terminal for the graphical representation in the GUI.
 # Since the order has been set to 3, this terminal will be the last of the
 # three shown in the GUI.
-id = 3
+index = 3
 
 [term2]
 name = "NA"
-id = 1
+index = 1
 
 [term3]
 name = "Omni"
-id = 2
+index = 2

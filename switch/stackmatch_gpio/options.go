@@ -11,7 +11,7 @@ func Config(sc SmConfig) func(*SmGPIO) {
 
 type SmConfig struct {
 	Name         string
-	ID           int
+	Index        int
 	Combinations []CombinationConfig
 }
 
@@ -22,8 +22,8 @@ type CombinationConfig struct {
 }
 
 type TerminalConfig struct {
-	Name string
-	ID   int
+	Name  string
+	Index int
 }
 
 // PinConfig describes a gpio pin.

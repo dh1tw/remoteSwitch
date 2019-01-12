@@ -30,6 +30,7 @@ func New(opts ...func(*SbSwitchProxy)) (*SbSwitchProxy, error) {
 	s := &SbSwitchProxy{
 		device: sw.Device{
 			Name:  "SwitchProxy",
+			Index: 0,
 			Ports: []sw.Port{},
 		},
 		serviceName: "shackbus.switch.mySwitch",
@@ -82,14 +83,14 @@ func (s *SbSwitchProxy) updateHandler(p broker.Publication) error {
 
 		port := sw.Port{
 			Name:      sbPort.GetName(),
-			ID:        int(sbPort.GetId()),
+			Index:     int(sbPort.GetIndex()),
 			Terminals: []sw.Terminal{},
 		}
 
 		for _, sbTerminal := range sbPort.GetTerminals() {
 			t := sw.Terminal{
 				Name:  sbTerminal.GetName(),
-				ID:    int(sbTerminal.GetId()),
+				Index: int(sbTerminal.GetIndex()),
 				State: sbTerminal.GetState(),
 			}
 			port.Terminals = append(port.Terminals, t)
@@ -113,19 +114,19 @@ func (s *SbSwitchProxy) getInfo() error {
 	}
 
 	s.device.Name = device.GetName()
-	s.device.ID = int(device.GetId())
+	s.device.Index = int(device.GetIndex())
 	ports := device.GetPorts()
 	for _, port := range ports {
 		p := sw.Port{
-			Name: port.GetName(),
-			ID:   int(port.GetId()),
+			Name:  port.GetName(),
+			Index: int(port.GetIndex()),
 		}
 
 		terminals := port.GetTerminals()
 		for _, terminal := range terminals {
 			t := sw.Terminal{
 				Name:  terminal.GetName(),
-				ID:    int(terminal.GetId()),
+				Index: int(terminal.GetIndex()),
 				State: terminal.GetState(),
 			}
 			p.Terminals = append(p.Terminals, t)
