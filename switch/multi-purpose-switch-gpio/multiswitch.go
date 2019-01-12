@@ -130,6 +130,14 @@ func (g *MPSwitchGPIO) Name() string {
 	return g.name
 }
 
+// ID returns the ID of this switch. The ID is an integer which can be useful
+// for sorting switches in a GUI application.
+func (g *MPSwitchGPIO) ID() int {
+	g.Lock()
+	defer g.Unlock()
+	return g.id
+}
+
 // SetPort sets the Terminals of a particular Port. The portRequest
 // can contain n termials.
 func (g *MPSwitchGPIO) SetPort(portRequest sw.Port) error {

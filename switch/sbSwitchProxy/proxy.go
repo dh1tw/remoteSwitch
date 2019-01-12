@@ -142,6 +142,14 @@ func (s *SbSwitchProxy) Name() string {
 	return s.device.Name
 }
 
+// ID returns the ID of this switch. The ID is an integer which can be useful
+// for sorting switches in a GUI application.
+func (s *SbSwitchProxy) ID() int {
+	s.RLock()
+	defer s.RUnlock()
+	return s.device.ID
+}
+
 func (s *SbSwitchProxy) GetPort(portName string) (sw.Port, error) {
 	s.RLock()
 	defer s.RUnlock()

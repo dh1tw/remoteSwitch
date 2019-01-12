@@ -86,6 +86,14 @@ func (d *DummySwitch) Name() string {
 	return d.name
 }
 
+// ID returns the ID of this switch. The ID is an integer which can be useful
+// for sorting switches in a GUI application.
+func (d *DummySwitch) ID() int {
+	d.RLock()
+	defer d.RUnlock()
+	return d.id
+}
+
 // SetPort sets the Terminals of a particular Port. The portRequest
 // can contain n termials.
 func (d *DummySwitch) SetPort(portRequest sw.Port) error {

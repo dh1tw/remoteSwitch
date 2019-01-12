@@ -2,6 +2,7 @@ package Switch
 
 type Switcher interface {
 	Name() string
+	ID() int
 	GetPort(portName string) (port Port, err error)
 	SetPort(port Port) error
 	Serialize() Device

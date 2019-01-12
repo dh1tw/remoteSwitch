@@ -189,6 +189,14 @@ func (s *SmGPIO) Name() string {
 	return s.name
 }
 
+// ID returns the ID of this switch. The ID is an integer which can be useful
+// for sorting switches in a GUI application.
+func (s *SmGPIO) ID() int {
+	s.RLock()
+	defer s.RUnlock()
+	return s.id
+}
+
 func (s *SmGPIO) SetPort(req sw.Port) error {
 	s.Lock()
 	defer s.Unlock()
