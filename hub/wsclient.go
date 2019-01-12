@@ -33,9 +33,5 @@ func (c *WsClient) write(event Event) error {
 	if err != nil {
 		return fmt.Errorf("unable to serialize msg %v: %v", event, err)
 	}
-	if err := c.WriteMessage(websocket.TextMessage, b); err != nil {
-		return err
-	}
-
-	return nil
+	return c.WriteMessage(websocket.TextMessage, b)
 }
