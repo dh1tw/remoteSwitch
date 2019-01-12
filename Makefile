@@ -7,24 +7,30 @@ VERSION := $(shell git describe --tags)
 
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/)
-all: build
+
+all: vue_production generate dist vue_debug
+
+# replace the debug version of vue.js with it's production version
+vue_production:
+	find html/index.html -exec sed -i '' 's/vue.js/vue.min.js/g' {} \;
+
+# replace the debug version of vue.js with it's production version
+vue_debug:
+	find html/index.html -exec sed -i '' 's/vue.min.js/vue.js/g' {} \;
+
+# embed the static files into a go file
+generate:
+	cd hub; \
+	rice embed-go
 
 build:
 	go build -v -ldflags="-X github.com/dh1tw/remoteSwitch/cmd.commitHash=${COMMIT} \
 		-X github.com/dh1tw/remoteSwitch/cmd.version=${VERSION}"
 
-# strip off dwraf table - used for travis CI
-
-generate:
-	cd hub; \
-	rice embed-go
-
+# build and strip off the dwraf table. This will reduce the file size
 dist:
 	go build -v -ldflags="-w -X github.com/dh1tw/remoteSwitch/cmd.commitHash=${COMMIT} \
 		-X github.com/dh1tw/remoteSwitch/cmd.version=${VERSION}"
-
-# test:
-# 	@go test -short ${PKG_LIST}
 
 vet:
 	@go vet ${PKG_LIST}
@@ -34,27 +40,11 @@ lint:
 		golint $$file ; \
 	done
 
-test:
-	go test ./...
-
-install:
-	go install -v -ldflags="-w -X github.com/dh1tw/remoteSwitch/cmd.commitHash=${COMMIT} \
-		-X github.com/dh1tw/remoteSwitch/cmd.version=${VERSION}"
-
 install-deps:
 	go get github.com/GeertJohan/go.rice/rice
 	go get ./...
 
-windows:
-	GOOS=windows GOARCH=386 go get ./...
-	GOOS=windows GOARCH=386 go build -v -ldflags="-w -X github.com/dh1tw/remoteSwitch/cmd.commitHash=${COMMIT} \
-		-X github.com/dh1tw/remoteSwitch/cmd.version=${VERSION}"
-
-
-# static: vet lint
-# 	go build -i -v -o ${OUT}-v${VERSION} -tags netgo -ldflags="-extldflags \"-static\" -w -s -X main.version=${VERSION}" ${PKG}
-
 clean:
 	-@rm remoteSwitch remoteSwitch-v*
 
-.PHONY: build server install vet lint clean install-deps generate
+.PHONY: build dist vet lint clean install-deps generate vue_production vue_debug
