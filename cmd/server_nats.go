@@ -252,8 +252,8 @@ func (s *rpcSwitch) PublishDeviceUpdate(swi sw.Switcher, d sw.Device) {
 	}
 }
 
-func (r *rpcSwitch) GetPort(ctx context.Context, portName *sbSwitch.PortName, port *sbSwitch.Port) error {
-	p, err := r.sw.GetPort(portName.GetName())
+func (s *rpcSwitch) GetPort(ctx context.Context, portName *sbSwitch.PortName, port *sbSwitch.Port) error {
+	p, err := s.sw.GetPort(portName.GetName())
 	if err != nil {
 		return err
 	}
