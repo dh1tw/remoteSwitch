@@ -185,6 +185,21 @@ func natsServer(cmd *cobra.Command, args []string) {
 	// initalize our service
 	ss.Init()
 
+	// before we annouce this service, we have to ensure that no other
+	// service with the same name exists. Therefore we query the
+	// registry for all other existing services.
+	services, err := reg.ListServices()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// if a service with this name already exists, then exit
+	for _, service := range services {
+		if service.Name == serviceName {
+			log.Fatalf("service '%s' already exists", service.Name)
+		}
+	}
+
 	rpcSwitch.service = ss
 	rpcSwitch.pubSubTopic = fmt.Sprintf("%s.state", strings.Replace(serviceName, " ", "_", -1))
 
