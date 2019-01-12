@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dh1tw/remoteSwitch/configparser"
 	sbSwitch "github.com/dh1tw/remoteSwitch/sb_switch"
 	sw "github.com/dh1tw/remoteSwitch/switch"
 	ds "github.com/dh1tw/remoteSwitch/switch/dummy_switch"
@@ -87,7 +88,7 @@ func natsServer(cmd *cobra.Command, args []string) {
 
 	switch switchType {
 	case "multi_purpose_gpio":
-		sc, err := getMPGPIOSwitchConfig(switchName)
+		sc, err := configparser.GetMPGPIOSwitchConfig(switchName)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -98,8 +99,9 @@ func natsServer(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 		rpcSwitch.sw = sw
+
 	case "dummy_switch":
-		sc, err := getDummySwitchConfig(switchName)
+		sc, err := configparser.GetDummySwitchConfig(switchName)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -109,9 +111,9 @@ func natsServer(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 		rpcSwitch.sw = sw
-	case "stackmatch_gpio":
 
-		sc, err := getSmGPIOConfig(switchName)
+	case "stackmatch_gpio":
+		sc, err := configparser.GetSmGPIOConfig(switchName)
 		if err != nil {
 			log.Fatal(err)
 		}

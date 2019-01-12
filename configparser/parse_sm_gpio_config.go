@@ -1,4 +1,4 @@
-package cmd
+package configparser
 
 import (
 	"fmt"
@@ -7,7 +7,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-func getSmGPIOConfig(smName string) (smGPIO.SmConfig, error) {
+// GetSmGPIOConfig tries to parse the config file via viper
+// and returns on success a StackmatchGPIO.SmConfig object.
+func GetSmGPIOConfig(smName string) (smGPIO.SmConfig, error) {
 
 	sc := smGPIO.SmConfig{}
 

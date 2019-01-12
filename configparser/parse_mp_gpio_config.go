@@ -1,4 +1,4 @@
-package cmd
+package configparser
 
 import (
 	"fmt"
@@ -7,7 +7,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-func getMPGPIOSwitchConfig(switchName string) (mpGPIO.SwitchConfig, error) {
+// GetMPGPIOSwitchConfig tries to parse the config file via viper
+// and returns on success a mpGPIO.SwitchConfig object.
+func GetMPGPIOSwitchConfig(switchName string) (mpGPIO.SwitchConfig, error) {
 
 	sc := mpGPIO.SwitchConfig{}
 

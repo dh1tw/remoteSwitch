@@ -1,4 +1,4 @@
-package cmd
+package configparser
 
 import (
 	"fmt"
@@ -7,7 +7,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-func getDummySwitchConfig(switchName string) (ds.SwitchConfig, error) {
+// GetDummySwitchConfig tries to parse the config file via viper
+// and returns on success a dummySwitch.SwitchConfig object.
+func GetDummySwitchConfig(switchName string) (ds.SwitchConfig, error) {
 
 	sc := ds.SwitchConfig{}
 
