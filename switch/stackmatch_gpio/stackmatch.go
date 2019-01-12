@@ -29,7 +29,7 @@ type SmGPIO struct {
 	eventHandler func(sw.Switcher, sw.Device)
 }
 
-// combination holds for a given amount the terminals, the corresponing
+// combination holds for a given amount the terminals, the corresponding
 // relay (GPIO pin) configuration.
 type combination struct {
 	name      string

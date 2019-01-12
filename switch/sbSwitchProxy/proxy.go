@@ -152,7 +152,7 @@ func (s *SbSwitchProxy) GetPort(portName string) (sw.Port, error) {
 			return port, nil
 		}
 	}
-	return sw.Port{}, fmt.Errorf("unknwon portname %s", portName)
+	return sw.Port{}, fmt.Errorf("unknown portname %s", portName)
 }
 
 func (s *SbSwitchProxy) SetPort(port sw.Port) error {

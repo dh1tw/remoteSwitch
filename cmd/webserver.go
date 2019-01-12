@@ -20,7 +20,7 @@ import (
 	natsReg "github.com/micro/go-plugins/registry/nats"
 	"github.com/micro/go-plugins/selector/named"
 	natsTr "github.com/micro/go-plugins/transport/nats"
-	"github.com/nats-io/go-nats"
+	nats "github.com/nats-io/go-nats"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -153,7 +153,7 @@ func webServer(cmd *cobra.Command, args []string) {
 		log.Println(err)
 	}
 
-	// from now on watch the registry in a seperate thread for changes
+	// from now on watch the registry in a separate thread for changes
 	go w.watchRegistry()
 
 	// Channel to handle OS signals
@@ -283,7 +283,7 @@ func isSwitch(serviceName string) bool {
 	return true
 }
 
-// watchRegistry is a blocking function which continously
+// watchRegistry is a blocking function which continuously
 // checks the registry for changes (new switches being added/updated/removed).
 func (w *webserver) watchRegistry() {
 	watcher, err := w.cli.Options().Registry.Watch()

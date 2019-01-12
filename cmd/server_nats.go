@@ -182,7 +182,7 @@ func natsServer(cmd *cobra.Command, args []string) {
 		micro.Server(svr),
 	)
 
-	// initalize our service
+	// initialize our service
 	ss.Init()
 
 	// before we annouce this service, we have to ensure that no other
