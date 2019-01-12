@@ -62,7 +62,7 @@ var vm = new Vue({
             this.ws = new ReconnectingWebSocket(protocol + window.location.host + '/ws');
             this.ws.addEventListener('message', function (e) {
                 var eventMsg = JSON.parse(e.data);
-                console.log(eventMsg);
+                // console.log(eventMsg);
 
                 // add switch
                 if (eventMsg['name'] == 'add') {
@@ -137,7 +137,6 @@ var vm = new Vue({
             for (sw in this.Switches) {
                 switches.push(this.Switches[sw])
             }
-            console.log(switches)
             this.sortByKey(switches, "index")
             return switches
         },
