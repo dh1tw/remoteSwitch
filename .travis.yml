@@ -65,7 +65,9 @@ deploy:
   file_glob: true
   file: remoteSwitch-v$TRAVIS_TAG-$GIMME_OS-$GIMME_ARCH.*
   skip_cleanup: true
+  api_key:
+    secure: Uk/QIl32MHrKPJODC2DqPb/yv96GH+EBIqogoIGDflWdt/7mc9TvXt+YffIXVPTdzTz/XPUvH3m1otoN3VOU01+lv8uWmZY1J/G6ZG4LgaGo9m3M5DdlOBUB6bKJaDHJxNJU0qvgMDswZRPqqz+63WXmKhfwZX5E4CWwnvnNi4b9/NbpJhRUz19eg3uII8VC/tP6gdj6EsfB3fVU7u5zz95Xjwm2enV3kdMoaKxL1NpnrZ1a8qoNfF6/rX5+ODghSld2eSiYXNbxuN5z8uqLh/V9zotrQdzEHZMCS5mV0CMhRPI5afqG2HTSKKm9qsENTMhFRTjNFfTA0os7HLvGukTpCjwVUHzJQuXRC+8xucTaRy4jm6DDNk9wvaIoHLTYWKht9kblNjuonCFmYUe/vR9zn7G40wNCSykYTxjcrLRDwmbSZR7xWKGgNwwFB64g2mG+cKtwkVyg64kcq6yodd+xls7Fg5hVI4r8A7SbnH4+sJR5PaXa6xTxomlGp6airj4Jfl1MqyfiDX7KYQ6qk+9Ny2d1oc/eHbUujXo1SsGcVWUD+4RvcKHdOVchHZJV5E5cZROQqrstI/W3nRRijON+Q+wGiPvkxTGDlJ8bTSNuZ8PkVoG6Tr1e4aZzNH5wglYAILtE9BRPyQSLy4WorcKLFaIlY+irEFQJosT3svA=
   on:
     repo: dh1tw/remoteSwitch
-    tags: true
+    # tags: true
     draft: true
