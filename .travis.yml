@@ -71,3 +71,4 @@ deploy:
     repo: dh1tw/remoteSwitch
     # tags: true
     draft: true
+    branch: travis-deploy
