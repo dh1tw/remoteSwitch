@@ -69,6 +69,5 @@ deploy:
     secure: xD11dAS+ibynpSAozx7vhGBr36+PeCxnEy+wvHDvX5r9ODiFx4fPPPoLuu29ViOeIHJFjmw1FrfO1urcW5mblcOOi35tn+anOqUDkp1H+tp9+dxhgDVo7ZOABWMfF5e8QGu3OsV0zrOXXtQzMzT0nEMV3ZwqkfeLhUy7rOQf0i2mQdWR5EJT6CUSLcA7UAWkdO/VZhryDK0i38R65iTFJfP9MJtK8xuc/rCbDnNQAEj4V5ESWHMwNTLgv/BFaMtBy5NFlVWJZ1mtuV2VhIBArn5FwdjW+JUXkXh7qIds6UrpijFwVvGYf/UotnLmCr+tBndNt4/1rRG++R1ZCdqrY1x4JwLIq37s9fsLhacj+H5czMeIHomo/9qytnHwTFyzx1vfS4lxKogbBumcT3oGHwDGIT0CugW2GnVP9ESrR9V/65xPrAC5lAAGO3bccGGMb2PUjqbZ2+geHEtuSj5NK2mEvFgcygqr6JCO+cbRVTBdf83ZK5gVfGEj+bnPvF/G1vFKYr15D89ZuXF/E9VSh246RY/idb6SIkYnZ4XXIRYsRyCsz7PvKywij7kL0K7+NX2EX9xMFgrs/zKyjwakqB3/HImIuOlmjOssz76myUlwzulpiXczVcLPyM2n5wm/JlDAC43Dvi9+JI1ppw+8qSdaT6SDMCm7ZwkgNzXM8QM=
   on:
     repo: dh1tw/remoteSwitch
-    # tags: true
+    tags: true
     draft: true
-    branch: travis-deploy
