@@ -160,6 +160,7 @@ func natsServer(cmd *cobra.Command, args []string) {
 	svr := server.NewServer(
 		server.Name(serviceName),
 		server.Address(validateSubject(serviceName)),
+		server.RegisterInterval(time.Second*10),
 		server.Transport(tr),
 		server.Registry(reg),
 		server.Broker(br),
@@ -174,7 +175,6 @@ func natsServer(cmd *cobra.Command, args []string) {
 	// let's create the new rotator service
 	ss := micro.NewService(
 		micro.Name(serviceName),
-		micro.RegisterInterval(time.Second*10),
 		micro.Broker(br),
 		micro.Transport(tr),
 		micro.Registry(reg),
