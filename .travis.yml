@@ -6,64 +6,64 @@ matrix:
   include:
   - os: linux
     env:
-    - GIMME_OS=linux
-      GIMME_ARCH=amd64
-      HOST_OS=linux
-    go: "1.11"
-  - os: linux
-    env:
-    - GIMME_OS=linux
-    - GIMME_ARCH=386
+    - GOOS=linux
+    - GOARCH=amd64
     - HOST_OS=linux
     go: "1.11"
   - os: linux
     env:
-    - GIMME_OS=linux
-    - GIMME_ARCH=arm64
+    - GOOS=linux
+    - GOARCH=386
     - HOST_OS=linux
     go: "1.11"
   - os: linux
     env:
-    - GIMME_OS=linux
-    - GIMME_ARCH=arm
+    - GOOS=linux
+    - GOARCH=arm64
     - HOST_OS=linux
     go: "1.11"
   - os: linux
     env:
-    - GIMME_OS=windows
-    - GIMME_ARCH=amd64
+    - GOOS=linux
+    - GOARCH=arm
     - HOST_OS=linux
     go: "1.11"
   - os: linux
     env:
-    - GIMME_OS=windows
-    - GIMME_ARCH=386
+    - GOOS=windows
+    - GOARCH=amd64
     - HOST_OS=linux
-    go: "1.10"
+    go: "1.11"
+  - os: linux
+    env:
+    - GOOS=windows
+    - GOARCH=386
+    - HOST_OS=linux
+    go: "1.10" # last version compatible with WinXP
   - os: osx
     env:
-    - GIMME_OS=darwin
-    - GIMME_ARCH=amd64
+    - GOOS=darwin
+    - GOARCH=amd64
     - HOST_OS=darwin
     go: "1.11"
 
 before_install:
 - git fetch --tags
-- GOARCH=amd64 GOOS=$HOST_OS go get github.com/mattn/goveralls
-- GOARCH=amd64 GOOS=$HOST_OS go get github.com/GeertJohan/go.rice/rice
+- GOARCH=amd64 GOOS=$HOSTOS go get github.com/mattn/goveralls
+- GOARCH=amd64 GOOS=$HOSTOS go get github.com/GeertJohan/go.rice/rice
 script:
-- GOARCH=$GIMME_ARCH GOOS=$GIMME_OS go get ./...
-- GOARCH=$GIMME_ARCH GOOS=$GIMME_OS ./ci/test.sh
-- GOARCH=amd64 GOOS=$HOST_OS make vue_production
-- GOARCH=amd64 GOOS=$HOST_OS make generate
-- GOARCH=$GIMME_ARCH GOOS=$GIMME_OS make dist
+- go get ./...
+- ./ci/test.sh
+- GOARCH=amd64 GOOS=$HOSTOS make vue_production
+- GOARCH=amd64 GOOS=$HOSTOS make generate
+- make dist
 # - file remoteSwitch
 before_deploy:
 - ./ci/pack.sh
 deploy:
   provider: releases
   file_glob: true
-  file: remoteSwitch-v$TRAVIS_TAG-$GIMME_OS-$GIMME_ARCH.*
+  file: remoteSwitch-v$TRAVIS_TAG-$GOOS-$GOARCH.*
   skip_cleanup: true
   on:
     repo: dh1tw/remoteSwitch
