@@ -7,48 +7,55 @@ matrix:
   - os: linux
     env:
     - GOOS=linux
-      GOARCH=amd64
+    - GOARCH=amd64
+    - HOST_OS=linux
     go: "1.11"
   - os: linux
     env:
     - GOOS=linux
     - GOARCH=386
+    - HOST_OS=linux
     go: "1.11"
   - os: linux
     env:
     - GOOS=linux
     - GOARCH=arm64
+    - HOST_OS=linux
     go: "1.11"
   - os: linux
     env:
     - GOOS=linux
     - GOARCH=arm
+    - HOST_OS=linux
     go: "1.11"
   - os: linux
     env:
     - GOOS=windows
     - GOARCH=amd64
+    - HOST_OS=linux
     go: "1.11"
   - os: linux
     env:
     - GOOS=windows
     - GOARCH=386
+    - HOST_OS=linux
     go: "1.10" # last version compatible with WinXP
   - os: osx
     env:
     - GOOS=darwin
     - GOARCH=amd64
+    - HOST_OS=darwin
     go: "1.11"
 
 before_install:
 - git fetch --tags
-- GOARCH=amd64 GOOS=linux go get github.com/mattn/goveralls
-- GOARCH=amd64 GOOS=linux go get github.com/GeertJohan/go.rice/rice
+- GOARCH=amd64 GOOS=$HOSTOS go get github.com/mattn/goveralls
+- GOARCH=amd64 GOOS=$HOSTOS go get github.com/GeertJohan/go.rice/rice
 script:
 - go get ./...
 - ./ci/test.sh
-- GOARCH=amd64 GOOS=linux make vue_production
-- GOARCH=amd64 GOOS=linux make generate
+- GOARCH=amd64 GOOS=$HOSTOS make vue_production
+- GOARCH=amd64 GOOS=$HOSTOS make generate
 - make dist
 # - file remoteSwitch
 before_deploy:
