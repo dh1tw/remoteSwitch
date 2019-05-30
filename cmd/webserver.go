@@ -334,7 +334,7 @@ func (w *webserver) watchRegistry() {
 // are still alive. Dead objects will be removed.
 func (w *webserver) checkTimeout() {
 
-	tick := time.After(time.Second)
+	tick := time.Tick(time.Second)
 
 	for {
 		<-tick
@@ -347,7 +347,7 @@ func (w *webserver) checkTimeout() {
 					continue
 				}
 				r.Close()
-				delete(w.cache.cache, nameFromFQSN(service))
+				delete(w.cache.cache, service)
 			}
 		}
 		w.cache.Unlock()
