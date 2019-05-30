@@ -347,7 +347,7 @@ func (w *webserver) checkTimeout() {
 					continue
 				}
 				r.Close()
-				delete(w.cache.cache, service)
+				delete(w.cache.cache, nameFromFQSN(service))
 			}
 		}
 		w.cache.Unlock()
