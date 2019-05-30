@@ -20,7 +20,7 @@ import (
 	natsBroker "github.com/micro/go-plugins/broker/nats"
 	natsReg "github.com/micro/go-plugins/registry/nats"
 	natsTr "github.com/micro/go-plugins/transport/nats"
-	nats "github.com/nats-io/go-nats"
+	nats "github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -154,6 +154,9 @@ func webServer(cmd *cobra.Command, args []string) {
 
 	// from now on watch the registry in a separate thread for changes
 	go w.watchRegistry()
+
+	// check regularily if the proxy objects are still alive
+	go w.checkTimeout()
 
 	// Channel to handle OS signals
 	osSignals := make(chan os.Signal, 1)
@@ -324,7 +327,17 @@ func (w *webserver) watchRegistry() {
 			delete(w.cache.cache, res.Service.Name)
 			w.cache.Unlock()
 		}
+	}
+}
 
+// checkTimeout checks every second if the existing proxy objects
+// are still alive. Dead objects will be removed.
+func (w *webserver) checkTimeout() {
+
+	tick := time.After(time.Second)
+
+	for {
+		<-tick
 		w.cache.Lock()
 		for service, timeout := range w.cache.cache {
 			if time.Since(timeout) >= w.cache.ttl {
@@ -334,7 +347,7 @@ func (w *webserver) watchRegistry() {
 					continue
 				}
 				r.Close()
-				delete(w.cache.cache, res.Service.Name)
+				delete(w.cache.cache, service)
 			}
 		}
 		w.cache.Unlock()
