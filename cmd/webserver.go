@@ -136,7 +136,7 @@ func webServer(cmd *cobra.Command, args []string) {
 	}
 
 	cache := &serviceCache{
-		ttl:   time.Second * 20,
+		ttl:   time.Second * 10,
 		cache: make(map[string]time.Time),
 	}
 	w := webserver{h, cl, cache}
@@ -152,7 +152,7 @@ func webServer(cmd *cobra.Command, args []string) {
 		log.Println(err)
 	}
 
-	// from now on watch the registry in a separate thread for changes
+	// from now on watch the registry in a separate go-routine for changes
 	go w.watchRegistry()
 
 	// check regularily if the proxy objects are still alive
