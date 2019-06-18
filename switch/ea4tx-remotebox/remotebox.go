@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -26,7 +27,97 @@ const (
 	rb2x8
 	rb2x12
 	rb4sq
+	rb4sqplus
 )
+
+type rbAnt int
+
+const (
+	rbAnt1 rbAnt = iota
+	rbAnt2
+	rbAnt3
+	rbAnt4
+	rbAnt5
+	rbAnt6
+	rbAnt7
+	rbAnt8
+	rbAnt9
+	rbAnt10
+	rbAnt11
+	rbAnt12
+)
+
+var rbAnts = map[rbAnt][]string{
+	rbAnt1:  []string{"10", "11", "12", "13"},
+	rbAnt2:  []string{"14", "15", "16", "17"},
+	rbAnt3:  []string{"18", "19", "1A", "1B"},
+	rbAnt4:  []string{"1C", "1D", "1E", "1F"},
+	rbAnt5:  []string{"20", "21", "22", "23"},
+	rbAnt6:  []string{"24", "25", "26", "27"},
+	rbAnt7:  []string{"28", "29", "2A", "2B"},
+	rbAnt8:  []string{"2C", "2D", "2E", "2F"},
+	rbAnt9:  []string{"46", "47", "48", "49"},
+	rbAnt10: []string{"4A", "4B", "4C", "4D"},
+	rbAnt11: []string{"4E", "4F", "50", "51"},
+	rbAnt12: []string{"52", "53", "54", "55"},
+}
+
+type rbConfig struct {
+	name  string
+	ports int
+	ants  []rbAnt
+}
+
+var rbConfigs = map[rbModel]rbConfig{
+	rb1x6: rbConfig{
+		name:  "SW",
+		ports: 1,
+		ants:  []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6},
+	},
+	rb2x6: rbConfig{
+		name:  "SW",
+		ports: 2,
+		ants:  []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6},
+	},
+	rb1x8: rbConfig{
+		name:  "SW",
+		ports: 1,
+		ants:  []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6, rbAnt7, rbAnt8},
+	},
+	rb2x8: rbConfig{
+		name:  "SW",
+		ports: 2,
+		ants:  []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6, rbAnt7, rbAnt8},
+	},
+	rb2x12: rbConfig{
+		name:  "SW",
+		ports: 2,
+		ants:  []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6, rbAnt7, rbAnt8, rbAnt9, rbAnt10, rbAnt11, rbAnt12},
+	},
+	rb4sq: rbConfig{
+		name:  "SQ",
+		ports: 1,
+		ants:  []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4},
+	},
+	rb4sqplus: rbConfig{
+		name:  "ST",
+		ports: 1,
+		ants:  []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6},
+	},
+}
+
+type port struct {
+	name          string
+	index         int
+	terminals     map[string]*terminal
+	terminalsList []*terminal
+}
+
+type terminal struct {
+	name  string
+	index int
+	state bool
+}
 
 type Remotebox struct {
 	sync.RWMutex
@@ -35,9 +126,11 @@ type Remotebox struct {
 	index             int
 	model             rbModel
 	firmwareVersion   string
+	ports             map[string]*port
 	sp                io.ReadWriteCloser
 	spPortname        string
 	spBaudrate        int
+	spReader          *bufio.Reader
 	spRead            sync.Mutex
 	spWrite           sync.Mutex
 	spPollingInterval time.Duration
@@ -55,9 +148,10 @@ func New(opts ...func(*Remotebox)) (*Remotebox, error) {
 	r := &Remotebox{
 		name:              "EA4TX Remotebox",
 		model:             rbUnknown,
-		spPollingInterval: time.Second * 1,
+		ports:             make(map[string]*port),
+		spPollingInterval: time.Millisecond * 100,
 		spPortname:        "/dev/ttyACM0",
-		spBaudrate:        9600,
+		spBaudrate:        9600, //doesn't really matter
 		closeCh:           make(chan struct{}),
 	}
 
@@ -80,6 +174,7 @@ func New(opts ...func(*Remotebox)) (*Remotebox, error) {
 	}
 
 	r.sp = sp
+	r.spReader = bufio.NewReader(r.sp)
 
 	go r.start()
 
@@ -197,6 +292,31 @@ func parseConfig(config []string) (rbModel, string, error) {
 	return rbModel, fwVersion, nil
 }
 
+func (r *Remotebox) getEEPROM() (string, error) {
+
+	eepromError := errors.New("unable to read EEPROM of remotebox")
+
+	_, err := r.write([]byte("FI\n"))
+	if err != nil {
+		return "", eepromError
+	}
+
+	eeprom := ""
+
+	for i := 0; i <= 15; i++ {
+		c, err := r.read()
+		if err != nil {
+			if err == io.EOF {
+				continue
+			}
+			return "", err
+		}
+		eeprom = eeprom + c
+	}
+
+	return eeprom, nil
+}
+
 // Start the main event loop for the serial port.
 // It will query the Remotebox for the current status of the port(s)
 // with the pollingrate defined during initialization.
@@ -219,7 +339,20 @@ func (r *Remotebox) start() {
 	r.model = model
 	r.firmwareVersion = fwVersion
 
-	// create the necessary structures
+	eeprom, err := r.getEEPROM()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	eMap, err := parseEEPROM(eeprom)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	err = r.createPorts(model, fwVersion, eMap)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	r.Lock()
 	r.spPollingTicker = time.NewTicker(r.spPollingInterval)
@@ -286,23 +419,18 @@ func (r *Remotebox) read() (string, error) {
 	r.spRead.Lock()
 	defer r.spRead.Unlock()
 
-	spReader := bufio.NewReader(r.sp)
-
 read:
-	msg, err := spReader.ReadString('\n')
+	msg, err := r.spReader.ReadString('\n')
 	if err != nil {
-		return string(msg), err
+		return msg, err
 	}
+
+	// sanitize string by removing line breaking characters
 	msg = strings.ReplaceAll(msg, "\n", "")
 	msg = strings.ReplaceAll(msg, "\r", "")
 
+	// discard empty lines
 	if len(msg) == 0 {
-		// this is a hack, since the Remotebox sends '\n\r' at the beginning
-		// of the string containing the configuration ("S"). This lead to
-		// ocassional loss of the first characters ("SW1:..."). Apparently
-		// it takes too long to re-initalize a new Reader in the next
-		// loop cycle. Therefore empty messages (having \n\r stripped off)
-		// will remain in this routing and jump back to the 'read' label.
 		goto read
 	}
 
@@ -324,26 +452,166 @@ func (r *Remotebox) write(data []byte) (int, error) {
 
 // parseMsg checks the content of the received message from the RemoteBox,
 // updates the internal state and executes the event callback
-func (r *Remotebox) parseMsg(msg string) {
+func (r *Remotebox) parseMsg(msg string) error {
+	r.Lock()
+	defer r.Unlock()
 
 	if len(msg) == 0 {
-		return
+		return nil
 	}
 
-	fmt.Println("msg:", msg)
-	for _, char := range msg {
-		fmt.Printf("0x%x ", char)
+	// fmt.Println("msg:", msg)
+	stateChanged := false
+
+	switch msg[0:2] {
+	case "SW":
+		p, ok := r.ports[msg[0:3]]
+		if !ok {
+			return errors.New("unknown port")
+		}
+		if p == nil {
+			return errors.New("port does not exist")
+		}
+
+		msg = msg[5 : len(msg)-1]
+		state := strings.Split(msg, ",")
+
+		if p.terminals == nil {
+			return errors.New("terminals do not exist")
+		}
+
+		if len(state) != len(p.terminalsList) {
+			return errors.New("message content does not match with remotebox model")
+		}
+
+		for i := 0; i < len(state); i++ {
+
+			newstate := false
+			switch state[i] {
+			case "1":
+				newstate = true
+			case "0":
+				newstate = false
+			default:
+				return errors.New("unknown state of terminal")
+			}
+
+			if p.terminalsList[i].state != newstate {
+				p.terminalsList[i].state = newstate
+				stateChanged = true
+			}
+		}
+
+	case "SQ":
+
+	case "ST":
+
+	default:
+		// do nothing
 	}
-	fmt.Printf("\n")
-	fmt.Println("")
+
+	// if stateChanged && r.eventHandler != nil {
+	if stateChanged {
+		for _, p := range r.ports {
+			fmt.Println(p)
+		}
+	}
+
+	return nil
 }
 
-func (r *Remotebox) parseFirmware(s string) {
+// parseEEPROM parses the configuration read from the remotebox
+// eeprom and returns a map[string]:byte containing for each address
+// the corresponing byte.
+func parseEEPROM(eeprom string) (map[string]byte, error) {
 
+	eMap := make(map[string]byte)
+	parseError := errors.New("unable to parse EEPROM of remotebox")
+
+	//remove trailing whitespace
+	eeprom = strings.TrimSuffix(eeprom, " ")
+
+	// split the string up into tuples Address:Content (e.g. 7F:0F)
+	tuples := strings.Split(eeprom, " ")
+
+	// write the tuples into a map
+	for _, t := range tuples {
+		tuple := strings.Split(t, ":")
+		if len(tuple) != 2 {
+			return nil, parseError
+		}
+		// convert the ASCII values (base 16 - hex) to integer
+		i, err := strconv.ParseInt(tuple[1], 16, 0)
+		if err != nil {
+			return nil, parseError
+		}
+		eMap[tuple[0]] = byte(i)
+	}
+
+	return eMap, nil
 }
 
-func (r *Remotebox) parseSwitch(s string) {
+// createPorts initializes the datastructure for the particular remotebox
+// model.
+func (r *Remotebox) createPorts(model rbModel, fw string, eMap map[string]byte) error {
 
+	r.Lock()
+	defer r.Unlock()
+
+	if model == rbUnknown {
+		return errors.New("unknown remotebox model")
+	}
+
+	// get the configuration for this particular remotebox model
+	config, ok := rbConfigs[model]
+	if !ok {
+		return errors.New("no configuration found for this remotebox model")
+	}
+
+	// create the ports
+	for i := 0; i < config.ports; i++ {
+
+		p := &port{
+			name:          fmt.Sprintf("%v%d", config.name, i+1),
+			terminals:     make(map[string]*terminal),
+			terminalsList: []*terminal{},
+		}
+
+		// create the terminals for the port
+		for j := 0; j < len(config.ants); j++ {
+			tName, err := getTerminalName(eMap, config.ants[j])
+			if err != nil {
+				return err
+			}
+			t := &terminal{
+				index: j,
+				name:  tName,
+			}
+			p.terminals[tName] = t
+			p.terminalsList = append(p.terminalsList, t)
+		}
+
+		r.ports[p.name] = p
+	}
+
+	return nil
+}
+
+// getTerminalName is a helper function which returns the name of a terminal
+// based on the values from the eeprom of the remotebox in order to match
+// the names with the ones displayed on the LCD.
+func getTerminalName(eMap map[string]byte, ant rbAnt) (string, error) {
+
+	name := ""
+	for _, addr := range rbAnts[ant] {
+		c, ok := eMap[addr]
+		if !ok {
+			return "", errors.New("unknown remotebox eeprom address")
+		}
+		name = name + string(c)
+	}
+
+	return name, nil
 }
 
 func (r *Remotebox) Name() string {
@@ -358,8 +626,27 @@ func (r *Remotebox) GetPort(portname string) (sw.Port, error) {
 	return p, nil
 }
 
-func (r *Remotebox) Serialize() sw.Device {
+func (r *Remotebox) SetPort(p sw.Port) error {
+	return nil
+}
 
-	s := sw.Device{}
+func (r *Remotebox) Serialize() sw.Device {
+	r.RLock()
+	defer r.RUnlock()
+
+	s := sw.Device{
+		Name:  r.name,
+		Index: r.index,
+	}
+
+	return s
+}
+
+func (p *port) String() string {
+	s := fmt.Sprintf("%v: \n", p.name)
+	for _, t := range p.terminalsList {
+		s = s + fmt.Sprintf("  %v:%v\n", t.name, t.state)
+	}
+
 	return s
 }
