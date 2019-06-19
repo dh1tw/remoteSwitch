@@ -24,4 +24,4 @@ name = "My EA4TX Remotebox"
 # setting index = 2 means that it will be visualized in the GUI after all other
 # switches with an index < 2 and before all other switched with an index > 2.
 index = 2
-portname = "/dev/tty.usbmodem000011"
+portname = "/dev/ttyACM0"
