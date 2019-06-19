@@ -2,10 +2,18 @@ package remotebox
 
 import sw "github.com/dh1tw/remoteSwitch/switch"
 
-// Baudrate is a functional option to set the baurate of the serial port.
-func Baudrate(baudrate int) func(*Remotebox) {
+// Name is a functional option to set the name of this device.
+func Name(name string) func(*Remotebox) {
 	return func(r *Remotebox) {
-		r.spBaudrate = baudrate
+		r.name = name
+	}
+}
+
+// Index is a functional option to set the order in which it will
+// be displayed on the graphical interface.
+func Index(i int) func(*Remotebox) {
+	return func(r *Remotebox) {
+		r.index = i
 	}
 }
 

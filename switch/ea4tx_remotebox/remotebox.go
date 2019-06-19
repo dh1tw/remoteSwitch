@@ -4,7 +4,6 @@ package remotebox
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -63,46 +62,54 @@ var rbAnts = map[rbAnt][]string{
 }
 
 type rbConfig struct {
-	name  string
-	ports int
-	ants  []rbAnt
+	prefix  string
+	modelID int
+	ports   int
+	ants    []rbAnt
 }
 
 var rbConfigs = map[rbModel]rbConfig{
 	rb1x6: rbConfig{
-		name:  "SW",
-		ports: 1,
-		ants:  []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6},
+		prefix:  "SW",
+		modelID: 1,
+		ports:   1,
+		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6},
 	},
 	rb2x6: rbConfig{
-		name:  "SW",
-		ports: 2,
-		ants:  []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6},
+		prefix:  "SW",
+		modelID: 2,
+		ports:   2,
+		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6},
 	},
 	rb1x8: rbConfig{
-		name:  "SW",
-		ports: 1,
-		ants:  []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6, rbAnt7, rbAnt8},
+		prefix:  "SW",
+		modelID: 3,
+		ports:   1,
+		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6, rbAnt7, rbAnt8},
 	},
 	rb2x8: rbConfig{
-		name:  "SW",
-		ports: 2,
-		ants:  []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6, rbAnt7, rbAnt8},
+		prefix:  "SW",
+		modelID: 4,
+		ports:   2,
+		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6, rbAnt7, rbAnt8},
 	},
 	rb2x12: rbConfig{
-		name:  "SW",
-		ports: 2,
-		ants:  []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6, rbAnt7, rbAnt8, rbAnt9, rbAnt10, rbAnt11, rbAnt12},
+		prefix:  "SW",
+		modelID: 5,
+		ports:   2,
+		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6, rbAnt7, rbAnt8, rbAnt9, rbAnt10, rbAnt11, rbAnt12},
 	},
 	rb4sq: rbConfig{
-		name:  "SQ",
-		ports: 1,
-		ants:  []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4},
+		prefix:  "SQ",
+		modelID: 6,
+		ports:   1,
+		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4},
 	},
 	rb4sqplus: rbConfig{
-		name:  "ST",
-		ports: 1,
-		ants:  []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6},
+		prefix:  "ST",
+		modelID: 99, // TBC: couldn't find any reference
+		ports:   1,
+		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6},
 	},
 }
 
@@ -127,6 +134,7 @@ type Remotebox struct {
 	model             rbModel
 	firmwareVersion   string
 	ports             map[string]*port
+	portsList         []*port
 	sp                io.ReadWriteCloser
 	spPortname        string
 	spBaudrate        int
@@ -143,21 +151,28 @@ type Remotebox struct {
 	closer            sync.Once
 }
 
-func New(opts ...func(*Remotebox)) (*Remotebox, error) {
+func New(opts ...func(*Remotebox)) *Remotebox {
 
 	r := &Remotebox{
 		name:              "EA4TX Remotebox",
 		model:             rbUnknown,
 		ports:             make(map[string]*port),
+		portsList:         []*port{},
 		spPollingInterval: time.Millisecond * 100,
 		spPortname:        "/dev/ttyACM0",
 		spBaudrate:        9600, //doesn't really matter
 		closeCh:           make(chan struct{}),
+		errorCh:           make(chan struct{}),
 	}
 
 	for _, opt := range opts {
 		opt(r)
 	}
+
+	return r
+}
+
+func (r *Remotebox) Init() error {
 
 	spConfig := &serial.Config{
 		Name:        r.spPortname,
@@ -170,15 +185,45 @@ func New(opts ...func(*Remotebox)) (*Remotebox, error) {
 
 	sp, err := serial.OpenPort(spConfig)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	r.sp = sp
 	r.spReader = bufio.NewReader(r.sp)
 
+	deviceInfo, err := r.getDeviceInfo()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	model, fwVersion, err := parseDeviceInfo(deviceInfo)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	r.model = model
+	r.firmwareVersion = fwVersion
+
+	config, err := r.getConfig()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	eMap, err := parseConfig(config)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	log.Printf("found ea4tx remotebox model: %s, firmware: %s", r.model, r.firmwareVersion)
+
+	err = r.createPorts(model, fwVersion, eMap)
+	if err != nil {
+		log.Panic(err)
+	}
+
 	go r.start()
 
-	return r, nil
+	return nil
 }
 
 func (r *Remotebox) Close() {
@@ -218,90 +263,116 @@ func (r *Remotebox) checkWatchdog() bool {
 	return false
 }
 
-func (r *Remotebox) getConfig() ([]string, error) {
+// getDeviceInfo reads the device information (model and firmware)
+// from the remotebox
+func (r *Remotebox) getDeviceInfo() ([]string, error) {
 
-	configError := errors.New("unable to read configuration from remotebox")
+	readError := fmt.Errorf("unable to read the device info from remotebox")
 
 	_, err := r.write([]byte("O\n"))
 	if err != nil {
-		return nil, configError
+		return nil, readError
 	}
 
 	line1, err := r.read()
 	if err != nil {
-		return nil, configError
+		return nil, readError
 	}
 
 	line2, err := r.read()
 	if err != nil {
-		return nil, configError
+		// buf in firmware versions < 1.3g. The do not send the
+		// first line (EA4TX - model) but rather just an empty one
+		if err != io.EOF {
+			return nil, readError
+		}
 	}
 
 	return []string{line1, line2}, nil
 }
 
-func parseConfig(config []string) (rbModel, string, error) {
+func parseDeviceInfo(deviceInfo []string) (rbModel, string, error) {
 
 	rbModel := rbUnknown
-	parseError := errors.New("unable to parse remotebox configuration")
+	parseError := fmt.Errorf("unable to parse remotebox device info")
 
-	// remotebox config should contain two lines:
+	if deviceInfo == nil {
+		return rbModel, "", parseError
+	}
+
+	// remotebox device info should contain two lines:
 	// EA4TX AS2x12
 	// Ver1.3g Firm:610
 
-	if config == nil {
+	// however in firmware < 1.3g this first line is empty
+
+	if len(deviceInfo) != 2 {
 		return rbModel, "", parseError
 	}
 
-	if len(config) != 2 {
-		return rbModel, "", parseError
+	// version is an iterims slice of strings containing the remotebox model version
+	// and the firmware
+	version := []string{}
+
+	// since remotebox firmware < 1.3g omits the first line
+	// the version is now in the first slice while the second
+	// one only contains one whitespace character
+	if len(deviceInfo[1]) <= 1 {
+		version = strings.Fields(deviceInfo[0])
+		// firmware >= 1.3g sends two lines
+	} else {
+		// split the second line into two slices
+		version = strings.Fields(deviceInfo[1])
 	}
 
-	// Remotebox always identifies with "EA4TX" in the first line
-	if !strings.Contains(config[0], "EA4TX") {
-		return rbModel, "", parseError
-	}
-
-	// split the second line into two slices
-	version := strings.Fields(config[1])
+	// make sure we get two slices
 	if len(version) != 2 {
 		return rbModel, "", parseError
 	}
 
 	// determine the firmware version
-	fwVersion := version[0][3:]
+	fwVersion := strings.ToLower(version[0][3:])
 
 	// determine the model
-	switch version[1][5:6] {
-	case "1":
-		rbModel = rb1x6
-	case "2":
-		rbModel = rb2x6
-	case "3":
-		rbModel = rb1x8
-	case "4":
-		rbModel = rb2x8
-	case "5":
-		rbModel = rb4sq
-	case "6":
-		rbModel = rb2x12
+	m, err := strconv.Atoi(version[1][5:6])
+	if err != nil {
+		return rbModel, "", parseError
+	}
+
+	for rbm, c := range rbConfigs {
+		if c.modelID == m {
+			rbModel = rbm
+			break
+		}
+	}
+
+	if rbModel == rbUnknown {
+		return rbModel, fwVersion, fmt.Errorf("unsupported remotebox model")
+	}
+
+	switch fwVersion {
+	case "1.3d", "1.3b", "1.2p", "1.2l":
+		//pass
+	// starting from 1.3g remotebox always identifies with "EA4TX" in the first line
 	default:
-		return rbModel, fwVersion, errors.New("unsupported remotebox model")
+		if !strings.Contains(deviceInfo[0], "EA4TX") {
+			return rbModel, "", parseError
+		}
 	}
 
 	return rbModel, fwVersion, nil
 }
 
-func (r *Remotebox) getEEPROM() (string, error) {
+func (r *Remotebox) getConfig() (string, error) {
 
-	eepromError := errors.New("unable to read EEPROM of remotebox")
+	readError := fmt.Errorf("unable to read config from remotebox")
 
 	_, err := r.write([]byte("FI\n"))
 	if err != nil {
-		return "", eepromError
+		return "", readError
 	}
 
-	eeprom := ""
+	config := ""
 
 	for i := 0; i <= 15; i++ {
 		c, err := r.read()
@@ -311,48 +382,20 @@ func (r *Remotebox) getEEPROM() (string, error) {
 			}
 			return "", err
 		}
-		eeprom = eeprom + c
+		config = config + c
 	}
 
-	return eeprom, nil
+	return config, nil
 }
 
 // Start the main event loop for the serial port.
-// It will query the Remotebox for the current status of the port(s)
+// It will query the remotebox for the current state of the port(s)
 // with the pollingrate defined during initialization.
 // If an error occures, the errorCh will be closed.
 // Consequently the communication will be shut down and the object
 // prepared for garbage collection.
 func (r *Remotebox) start() {
 	defer r.Close()
-
-	configRaw, err := r.getConfig()
-	if err != nil {
-		log.Panic(err)
-	}
-
-	model, fwVersion, err := parseConfig(configRaw)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	r.model = model
-	r.firmwareVersion = fwVersion
-
-	eeprom, err := r.getEEPROM()
-	if err != nil {
-		log.Panic(err)
-	}
-
-	eMap, err := parseEEPROM(eeprom)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	err = r.createPorts(model, fwVersion, eMap)
-	if err != nil {
-		log.Panic(err)
-	}
 
 	r.Lock()
 	r.spPollingTicker = time.NewTicker(r.spPollingInterval)
@@ -371,12 +414,10 @@ func (r *Remotebox) start() {
 		default:
 		}
 
-		// this is a blocking function which will run eventually
-		// into a timeout if no data is received
+		// this is a blocking function which will run timeout
+		// when no data is received (ReadTimeout)
 		msg, err := r.read()
 		if err != nil {
-			// serialport read is expected to timeout after 100ms
-			// to unblock this routine
 			if err == io.EOF {
 				continue
 			}
@@ -386,11 +427,13 @@ func (r *Remotebox) start() {
 			return // exit
 		}
 		r.resetWatchdog()
-		r.parseMsg(msg)
+		if err := r.parseMsg(msg); err != nil {
+			log.Println(err)
+		}
 	}
 }
 
-// poll the Remotebox rotator for the current heading (azimuth + elevation)
+// poll the Remotebox for the current state
 func (r *Remotebox) poll() {
 	defer r.Close()
 
@@ -403,7 +446,7 @@ func (r *Remotebox) poll() {
 				return
 			}
 			if r.checkWatchdog() {
-				fmt.Println("communication lost with Remotebox")
+				fmt.Println("communication lost with remotebox")
 				close(r.errorCh)
 				return
 			}
@@ -460,28 +503,27 @@ func (r *Remotebox) parseMsg(msg string) error {
 		return nil
 	}
 
-	// fmt.Println("msg:", msg)
 	stateChanged := false
 
 	switch msg[0:2] {
 	case "SW":
 		p, ok := r.ports[msg[0:3]]
 		if !ok {
-			return errors.New("unknown port")
+			return fmt.Errorf("unknown port")
 		}
 		if p == nil {
-			return errors.New("port does not exist")
+			return fmt.Errorf("port does not exist")
 		}
 
 		msg = msg[5 : len(msg)-1]
 		state := strings.Split(msg, ",")
 
 		if p.terminals == nil {
-			return errors.New("terminals do not exist")
+			return fmt.Errorf("terminals do not exist")
 		}
 
 		if len(state) != len(p.terminalsList) {
-			return errors.New("message content does not match with remotebox model")
+			return fmt.Errorf("message content does not match with remotebox model")
 		}
 
 		for i := 0; i < len(state); i++ {
@@ -493,7 +535,7 @@ func (r *Remotebox) parseMsg(msg string) error {
 			case "0":
 				newstate = false
 			default:
-				return errors.New("unknown state of terminal")
+				return fmt.Errorf("unknown state of terminal")
 			}
 
 			if p.terminalsList[i].state != newstate {
@@ -502,37 +544,71 @@ func (r *Remotebox) parseMsg(msg string) error {
 			}
 		}
 
-	case "SQ":
+	// assuming the the special 4SQ version "ST" behaves the same
+	// way as the standard 4SQ version.
+	case "SQ", "ST":
+		portMsg := msg[0:3]
+		p, ok := r.ports[portMsg]
 
-	case "ST":
+		if !ok {
+			return fmt.Errorf("unknown port %s", portMsg)
+		}
+		if p == nil {
+			return fmt.Errorf("port %s does not exist", portMsg)
+		}
+
+		state, err := strconv.Atoi(msg[5 : len(msg)-1])
+		if err != nil {
+			return fmt.Errorf("invalid state message: %v", msg)
+		}
+
+		if p.terminals == nil {
+			return fmt.Errorf("terminals do not exist for port %s", portMsg)
+		}
+
+		if state > len(p.terminalsList) {
+			return fmt.Errorf("message content does not match with remotebox model")
+		}
+
+		// check if something has changed
+		if p.terminalsList[state-1].state {
+			return nil
+		}
+
+		// set all terminals to false
+		for i := 0; i < len(p.terminalsList); i++ {
+			p.terminalsList[i].state = false
+		}
+
+		// set the newly selected terminal
+		p.terminalsList[state-1].state = true
+
+		stateChanged = true
 
 	default:
-		// do nothing
+		// ignore
 	}
 
-	// if stateChanged && r.eventHandler != nil {
-	if stateChanged {
-		for _, p := range r.ports {
-			fmt.Println(p)
-		}
+	if stateChanged && r.eventHandler != nil {
+		go r.eventHandler(r, r.serialize())
 	}
 
 	return nil
 }
 
-// parseEEPROM parses the configuration read from the remotebox
-// eeprom and returns a map[string]:byte containing for each address
+// parseConfig parses the configuration read from the remotebox
+// and returns a map[string]:byte containing for each address
 // the corresponing byte.
-func parseEEPROM(eeprom string) (map[string]byte, error) {
+func parseConfig(config string) (map[string]byte, error) {
 
-	eMap := make(map[string]byte)
-	parseError := errors.New("unable to parse EEPROM of remotebox")
+	cMap := make(map[string]byte)
+	parseError := fmt.Errorf("unable to parse config of remotebox")
 
 	//remove trailing whitespace
-	eeprom = strings.TrimSuffix(eeprom, " ")
+	config = strings.TrimSuffix(config, " ")
 
 	// split the string up into tuples Address:Content (e.g. 7F:0F)
-	tuples := strings.Split(eeprom, " ")
+	tuples := strings.Split(config, " ")
 
 	// write the tuples into a map
 	for _, t := range tuples {
@@ -545,10 +621,10 @@ func parseEEPROM(eeprom string) (map[string]byte, error) {
 		if err != nil {
 			return nil, parseError
 		}
-		eMap[tuple[0]] = byte(i)
+		cMap[tuple[0]] = byte(i)
 	}
 
-	return eMap, nil
+	return cMap, nil
 }
 
 // createPorts initializes the datastructure for the particular remotebox
@@ -559,20 +635,21 @@ func (r *Remotebox) createPorts(model rbModel, fw string, eMap map[string]byte) 
 	defer r.Unlock()
 
 	if model == rbUnknown {
-		return errors.New("unknown remotebox model")
+		return fmt.Errorf("unknown remotebox model %s", model)
 	}
 
 	// get the configuration for this particular remotebox model
 	config, ok := rbConfigs[model]
 	if !ok {
-		return errors.New("no configuration found for this remotebox model")
+		return fmt.Errorf("no configuration found for the remotebox model %s", model)
 	}
 
 	// create the ports
 	for i := 0; i < config.ports; i++ {
 
 		p := &port{
-			name:          fmt.Sprintf("%v%d", config.name, i+1),
+			name:          fmt.Sprintf("%v%d", config.prefix, i+1),
+			index:         i + 1,
 			terminals:     make(map[string]*terminal),
 			terminalsList: []*terminal{},
 		}
@@ -584,7 +661,7 @@ func (r *Remotebox) createPorts(model rbModel, fw string, eMap map[string]byte) 
 				return err
 			}
 			t := &terminal{
-				index: j,
+				index: j + 1,
 				name:  tName,
 			}
 			p.terminals[tName] = t
@@ -592,21 +669,22 @@ func (r *Remotebox) createPorts(model rbModel, fw string, eMap map[string]byte) 
 		}
 
 		r.ports[p.name] = p
+		r.portsList = append(r.portsList, p)
 	}
 
 	return nil
 }
 
 // getTerminalName is a helper function which returns the name of a terminal
-// based on the values from the eeprom of the remotebox in order to match
-// the names with the ones displayed on the LCD.
+// based on the values read from the remotebox's configuration. With this, the
+// terminal names will match the ones displayed on the remotebox's LCD.
 func getTerminalName(eMap map[string]byte, ant rbAnt) (string, error) {
 
 	name := ""
 	for _, addr := range rbAnts[ant] {
 		c, ok := eMap[addr]
 		if !ok {
-			return "", errors.New("unknown remotebox eeprom address")
+			return "", fmt.Errorf("unknown remotebox config address: %s", addr)
 		}
 		name = name + string(c)
 	}
@@ -614,34 +692,85 @@ func getTerminalName(eMap map[string]byte, ant rbAnt) (string, error) {
 	return name, nil
 }
 
+// Name returns the Name of this remotebox
 func (r *Remotebox) Name() string {
 	r.RLock()
 	defer r.RUnlock()
 	return r.name
 }
 
+// GetPort returns switch.Port struct containing the current state of
+// the requested port.
 func (r *Remotebox) GetPort(portname string) (sw.Port, error) {
 
-	p := sw.Port{}
-	return p, nil
+	r.RLock()
+	defer r.RUnlock()
+
+	p, ok := r.ports[portname]
+	if !ok {
+		return sw.Port{}, fmt.Errorf("%s is an invalid port", portname)
+	}
+
+	return p.serialize(), nil
 }
 
-func (r *Remotebox) SetPort(p sw.Port) error {
+// SetPort sets the Terminals of a particular Port. The portRequest
+// can contain n termials.
+func (r *Remotebox) SetPort(req sw.Port) error {
+	r.Lock()
+	defer r.Unlock()
+
+	// ensure that the requested port exists
+	p, ok := r.ports[req.Name]
+	if !ok {
+		return fmt.Errorf("%s is an invalid port", req.Name)
+	}
+
+	// ensure that the requested terminal exists
+	for n, t := range req.Terminals {
+		rbTerminal, ok := p.terminals[t.Name]
+		// copy the index of the terminal as it is not supplied with the
+		// RPC request
+		req.Terminals[n].Index = rbTerminal.index
+		if !ok {
+			return fmt.Errorf("%s is an invalid terminal", t.Name)
+		}
+	}
+
+	for _, t := range req.Terminals {
+		// Remotebox does not allow to unset a port. So we
+		// ignore state==false
+		if !t.State {
+			continue
+		}
+		cmd := fmt.Sprintf("%dR", p.index)
+		switch t.Index {
+		case 10:
+			cmd = fmt.Sprintf("%sA1\n", cmd)
+		case 11:
+			cmd = fmt.Sprintf("%sB1\n", cmd)
+		case 12:
+			cmd = fmt.Sprintf("%sC1\n", cmd)
+		default:
+			cmd = fmt.Sprintf("%s%d1\n", cmd, t.Index)
+		}
+		r.write([]byte(cmd))
+	}
+
 	return nil
 }
 
+// Serialize returns a switch.Device struct containing the current
+// state and configuration of this Remotebox.
 func (r *Remotebox) Serialize() sw.Device {
 	r.RLock()
 	defer r.RUnlock()
 
-	s := sw.Device{
-		Name:  r.name,
-		Index: r.index,
-	}
-
-	return s
+	return r.serialize()
 }
 
+// String returns the port with all of it's terminals and their
+// corresponding state in a print friendly string.
 func (p *port) String() string {
 	s := fmt.Sprintf("%v: \n", p.name)
 	for _, t := range p.terminalsList {
@@ -649,4 +778,44 @@ func (p *port) String() string {
 	}
 
 	return s
+}
+
+// serialize returns a switch.Device struct containing the current
+// state and configuration of this remotebox. This method
+// is not threadsafe.
+func (r *Remotebox) serialize() sw.Device {
+
+	dev := sw.Device{
+		Name:  r.name,
+		Index: r.index,
+	}
+
+	// serialize all ports
+	for _, p := range r.portsList {
+		swPort := p.serialize()
+		dev.Ports = append(dev.Ports, swPort)
+	}
+
+	return dev
+}
+
+// serialize returns a switch.Port struct containing the current
+// state and configuration of this port. This method is not threadsafe.
+func (p *port) serialize() sw.Port {
+	swPort := sw.Port{
+		Name:      p.name,
+		Index:     p.index,
+		Terminals: []sw.Terminal{},
+	}
+
+	for _, r := range p.terminalsList {
+		t := sw.Terminal{
+			Name:  r.name,
+			Index: r.index,
+			State: r.state,
+		}
+		swPort.Terminals = append(swPort.Terminals, t)
+	}
+
+	return swPort
 }
