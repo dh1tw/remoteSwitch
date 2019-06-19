@@ -469,8 +469,8 @@ read:
 	}
 
 	// sanitize string by removing line breaking characters
-	msg = strings.ReplaceAll(msg, "\n", "")
-	msg = strings.ReplaceAll(msg, "\r", "")
+	msg = strings.Replace(msg, "\n", "", -1)
+	msg = strings.Replace(msg, "\r", "", -1)
 
 	// discard empty lines
 	if len(msg) == 0 {
