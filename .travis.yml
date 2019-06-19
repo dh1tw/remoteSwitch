@@ -9,31 +9,31 @@ matrix:
     - GOOS=linux
     - GOARCH=amd64
     - HOST_OS=linux
-    go: "1.11"
+    go: "1.12"
   - os: linux
     env:
     - GOOS=linux
     - GOARCH=386
     - HOST_OS=linux
-    go: "1.11"
+    go: "1.12"
   - os: linux
     env:
     - GOOS=linux
     - GOARCH=arm64
     - HOST_OS=linux
-    go: "1.11"
+    go: "1.12"
   - os: linux
     env:
     - GOOS=linux
     - GOARCH=arm
     - HOST_OS=linux
-    go: "1.11"
+    go: "1.12"
   - os: linux
     env:
     - GOOS=windows
     - GOARCH=amd64
     - HOST_OS=linux
-    go: "1.11"
+    go: "1.12"
   - os: linux
     env:
     - GOOS=windows
@@ -45,10 +45,11 @@ matrix:
     - GOOS=darwin
     - GOARCH=amd64
     - HOST_OS=darwin
-    go: "1.11"
+    go: "1.12"
 
 before_install:
 - git fetch --tags
+- GOARCH=amd64 GOOS=$HOSTOS go get golang.org/x/tools/cmd/stringer
 - GOARCH=amd64 GOOS=$HOSTOS go get github.com/mattn/goveralls
 - GOARCH=amd64 GOOS=$HOSTOS go get github.com/GeertJohan/go.rice/rice
 script:
