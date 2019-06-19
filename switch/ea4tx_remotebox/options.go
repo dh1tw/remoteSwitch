@@ -32,3 +32,11 @@ func EventHandler(h func(sw.Switcher, sw.Device)) func(*Remotebox) {
 		r.eventHandler = h
 	}
 }
+
+// ErrorCh is a functional option allows you to pass a channel to the remotebox.
+// The channel will be closed when an internal error occures.
+func ErrorCh(ch chan struct{}) func(*Remotebox) {
+	return func(r *Remotebox) {
+		r.errorCh = ch
+	}
+}
