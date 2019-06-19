@@ -283,9 +283,9 @@ func (r *Remotebox) getDeviceInfo() ([]string, error) {
 	if err != nil {
 		// buf in firmware versions < 1.3g. The do not send the
 		// first line (EA4TX - model) but rather just an empty one
-		if err != io.EOF {
-			return nil, readError
-		}
+		// if err != io.EOF {
+		// 	return nil, readError
+		// }
 	}
 
 	return []string{line1, line2}, nil
