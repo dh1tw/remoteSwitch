@@ -15,11 +15,12 @@ func _() {
 	_ = x[rb2x8-4]
 	_ = x[rb2x12-5]
 	_ = x[rb4sq-6]
+	_ = x[rb4sqplus-7]
 }
 
-const _rbModel_name = "rbUnknownrb1x6rb2x6rb1x8rb2x8rb2x12rb4sq"
+const _rbModel_name = "rbUnknownrb1x6rb2x6rb1x8rb2x8rb2x12rb4sqrb4sqplus"
 
-var _rbModel_index = [...]uint8{0, 9, 14, 19, 24, 29, 35, 40}
+var _rbModel_index = [...]uint8{0, 9, 14, 19, 24, 29, 35, 40, 49}
 
 func (i rbModel) String() string {
 	if i < 0 || i >= rbModel(len(_rbModel_index)-1) {
