@@ -131,12 +131,12 @@ func natsServer(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 		opts = append(opts, rb.EventHandler(rpcSwitch.PublishDeviceUpdate))
+		opts = append(opts, rb.ErrorCh(switchError))
 		sw := rb.New(opts...)
 		if err := sw.Init(); err != nil {
 			log.Fatal(err)
 		}
 		rpcSwitch.sw = sw
-		fmt.Println(sw.Name())
 	default:
 		log.Fatalf("unknown switch type %s", switchType)
 	}
