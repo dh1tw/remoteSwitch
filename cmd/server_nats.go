@@ -13,7 +13,7 @@ import (
 	sbSwitch "github.com/dh1tw/remoteSwitch/sb_switch"
 	sw "github.com/dh1tw/remoteSwitch/switch"
 	ds "github.com/dh1tw/remoteSwitch/switch/dummy_switch"
-	rb "github.com/dh1tw/remoteSwitch/switch/ea4tx-remotebox"
+	rb "github.com/dh1tw/remoteSwitch/switch/ea4tx_remotebox"
 	mpGPIO "github.com/dh1tw/remoteSwitch/switch/multi-purpose-switch-gpio"
 	smGPIO "github.com/dh1tw/remoteSwitch/switch/stackmatch_gpio"
 	"github.com/gogo/protobuf/proto"

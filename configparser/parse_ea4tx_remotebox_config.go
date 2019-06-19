@@ -3,7 +3,7 @@ package configparser
 import (
 	"fmt"
 
-	rb "github.com/dh1tw/remoteSwitch/switch/ea4tx-remotebox"
+	rb "github.com/dh1tw/remoteSwitch/switch/ea4tx_remotebox"
 	"github.com/spf13/viper"
 )
 
