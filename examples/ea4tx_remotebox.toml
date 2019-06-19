@@ -1,0 +1,27 @@
+# This is a remoteSwitch example configuration file for a multi purpose gpio
+# switch, configured as a 8x2 bandswitch running on an Orange Pi Zero.
+
+# Configuration for connection to the NATS broker
+[nats]
+broker-url = "localhost"
+broker-port = 4222
+username = ""
+password = ""
+
+# All remoteSwitches are at their core "switches". Here we specify the type
+# and configuration key of the switch. In our case we select "ea4tx-remotebox".
+[switch]
+name = "mybandswitch"
+type = "ea4tx-remotebox"
+# type = "multi_purpose_gpio"
+# type = "dummy_switch"
+# type = "stackmatch_gpio"
+
+# This is the main configuration key. The name of the key is arbitrary, however
+# it must be referenced corectly in the [switch] key.
+[mybandswitch]
+name = "My EA4TX Remotebox"
+# setting index = 2 means that it will be visualized in the GUI after all other
+# switches with an index < 2 and before all other switched with an index > 2.
+index = 2
+portname = "/dev/tty.usbmodem000011"
