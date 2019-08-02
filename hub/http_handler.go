@@ -76,13 +76,12 @@ func (hub *Hub) switchHandler(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (hub *Hub) portHandler(w http.ResponseWriter, req *http.Request) {
+func (hub *Hub) switchPortHandler(w http.ResponseWriter, req *http.Request) {
 	defer req.Body.Close()
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	vars := mux.Vars(req)
 	sName := vars["switch"]
-	sPort := vars["port"]
 
 	s, ok := hub.Switch(sName)
 	if !ok {
@@ -91,19 +90,13 @@ func (hub *Hub) portHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	p, err := s.GetPort(sPort)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("unable to find port"))
-		return
-	}
-
 	switch req.Method {
 	case "GET":
-		if err := json.NewEncoder(w).Encode(p); err != nil {
+
+		if err := json.NewEncoder(w).Encode(s.Serialize()); err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("unable to encode port to json"))
+			w.Write([]byte("unable to encode rotatorData to json"))
 		}
 
 	case "PUT":
@@ -134,84 +127,6 @@ func (hub *Hub) portHandler(w http.ResponseWriter, req *http.Request) {
 			w.Write([]byte(fmt.Sprintf("unable to set port %s: %s", p.Name, err)))
 			return
 
-		}
-
-	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
-	}
-
-}
-
-func (hub *Hub) terminalHandler(w http.ResponseWriter, req *http.Request) {
-	defer req.Body.Close()
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	vars := mux.Vars(req)
-	sName := vars["switch"]
-	sPort := vars["port"]
-	sTerminal := vars["terminal"]
-
-	s, ok := hub.Switch(sName)
-	if !ok {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("unable to find switch"))
-		return
-	}
-
-	p, err := s.GetPort(sPort)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("unable to find port"))
-		return
-	}
-
-	var t sw.Terminal
-
-	for _, terminal := range p.Terminals {
-		if terminal.Name == sTerminal {
-			t = terminal
-			break
-		}
-	}
-
-	if t.Name == "" {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("unable to find terminal"))
-		return
-	}
-
-	switch req.Method {
-	case "GET":
-		if err := json.NewEncoder(w).Encode(t); err != nil {
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("unable to encode terminal to json"))
-		}
-
-	case "PUT":
-		t := sw.Terminal{}
-		dec := json.NewDecoder(req.Body)
-
-		if err := dec.Decode(&t); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("invalid json"))
-			return
-		}
-
-		if len(t.Name) == 0 {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("invalid request"))
-			return
-		}
-
-		portReq := p
-		portReq.Terminals = []sw.Terminal{t}
-
-		err := s.SetPort(portReq)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("unable to set terminal %s on port %s: %s", t.Name, p.Name, err)))
-			return
 		}
 
 	default:

@@ -25,6 +25,28 @@ func Portname(pn string) func(*Remotebox) {
 	}
 }
 
+
+// IpAddress
+func Rb_IpAddress(pn string) func(*Remotebox) {
+	return func(r *Remotebox) {
+		r.rb_ipaddress = pn
+	}
+}
+
+// ipport
+func Rb_IpPort(i int) func(*Remotebox) {
+	return func(r *Remotebox) {
+		r.rb_ipport = i
+	}
+}
+
+// typeConnection
+func Rb_Connection(i int) func(*Remotebox) {
+	return func(r *Remotebox) {
+		r.rb_Connection = i
+	}
+}
+
 // EventHandler sets a callback function through which the bandswitch
 // will report Events
 func EventHandler(h func(sw.Switcher, sw.Device)) func(*Remotebox) {

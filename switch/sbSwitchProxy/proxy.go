@@ -67,7 +67,7 @@ func (s *SbSwitchProxy) closeDone() {
 	s.doneOnce.Do(func() { close(s.doneCh) })
 }
 
-func (s *SbSwitchProxy) updateHandler(p broker.Event) error {
+func (s *SbSwitchProxy) updateHandler(p broker.Publication) error {
 
 	sbDevice := sbSwitch.Device{}
 	if err := proto.Unmarshal(p.Message().Body, &sbDevice); err != nil {

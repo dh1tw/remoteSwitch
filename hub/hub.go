@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"regexp"
 	"sync"
 
 	rice "github.com/GeertJohan/go.rice"
@@ -20,8 +19,6 @@ type Hub struct {
 	router        *mux.Router
 	fileServer    http.Handler
 	switches      map[string]sw.Switcher
-	apiVersion    string
-	apiMatch      *regexp.Regexp
 }
 
 // NewHub returns the pointer to an initialized Hub object.
@@ -30,8 +27,6 @@ func NewHub(switches ...sw.Switcher) (*Hub, error) {
 		wsClients:     make(map[*WsClient]bool),
 		closeWsClient: make(chan *WsClient),
 		switches:      make(map[string]sw.Switcher),
-		apiVersion:    "1.0",
-		apiMatch:      regexp.MustCompile(`api\/v\d\.\d\/`),
 	}
 
 	for _, r := range switches {
@@ -171,7 +166,7 @@ func (hub *Hub) ListenHTTP(host string, port int, errorCh chan<- struct{}) {
 	// Listen for incoming connections.
 	log.Printf("listening on %s:%d for HTTP connections\n", host, port)
 
-	err := http.ListenAndServe(fmt.Sprintf("%s:%d", host, port), hub.apiRedirectRouter(hub.router))
+	err := http.ListenAndServe(fmt.Sprintf("%s:%d", host, port), hub.router)
 	if err != nil {
 		log.Println(err)
 		return

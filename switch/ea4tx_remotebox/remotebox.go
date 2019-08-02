@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"strconv"
 	"strings"
 	"sync"
@@ -18,15 +19,18 @@ import (
 
 type rbModel int
 
+// EA4TX added new models
 const (
 	rbUnknown rbModel = iota
 	rb1x6
 	rb2x6
-	rb1x8
+	rb1x8	
 	rb2x8
-	rb2x12
 	rb4sq
+	rb2x12
 	rb4sqplus
+	rbrelay
+	rb1x3
 )
 
 type rbAnt int
@@ -68,13 +72,14 @@ type rbConfig struct {
 	ants    []rbAnt
 }
 
+// EA4TX ordered - changed ModelID & added new models
 var rbConfigs = map[rbModel]rbConfig{
 	rb1x6: rbConfig{
 		prefix:  "SW",
 		modelID: 1,
 		ports:   1,
 		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6},
-	},
+	},	
 	rb2x6: rbConfig{
 		prefix:  "SW",
 		modelID: 2,
@@ -93,29 +98,41 @@ var rbConfigs = map[rbModel]rbConfig{
 		ports:   2,
 		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6, rbAnt7, rbAnt8},
 	},
-	rb2x12: rbConfig{
-		prefix:  "SW",
-		modelID: 5,
-		ports:   2,
-		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6, rbAnt7, rbAnt8, rbAnt9, rbAnt10, rbAnt11, rbAnt12},
-	},
 	rb4sq: rbConfig{
 		prefix:  "SQ",
-		modelID: 6,
+		modelID: 5,
 		ports:   1,
 		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4},
 	},
+	rb2x12: rbConfig{
+		prefix:  "SW",
+		modelID: 6,
+		ports:   2,
+		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6, rbAnt7, rbAnt8, rbAnt9, rbAnt10, rbAnt11, rbAnt12},
+	},
 	rb4sqplus: rbConfig{
-		prefix:  "ST",
-		modelID: 99, // TBC: couldn't find any reference
+		prefix:  "SQ",
+		modelID: 7,
 		ports:   1,
-		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6},
+		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4},
+	},
+	rbrelay: rbConfig{
+		prefix:  "SW",
+		modelID: 8,
+		ports:   1,
+		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3, rbAnt4, rbAnt5, rbAnt6, rbAnt7, rbAnt8},
+	},
+	rb1x3: rbConfig{
+		prefix:  "ST",
+		modelID: 9,
+		ports:   1,
+		ants:    []rbAnt{rbAnt1, rbAnt2, rbAnt3},
 	},
 }
 
 type port struct {
 	name          string
-	index         int
+	index         int	
 	terminals     map[string]*terminal
 	terminalsList []*terminal
 }
@@ -135,7 +152,11 @@ type Remotebox struct {
 	firmwareVersion   string
 	ports             map[string]*port
 	portsList         []*port
+	rb_ipaddress      string
+	rb_ipport         int
+	rb_Connection     int
 	sp                io.ReadWriteCloser
+	//spipaddress         string
 	spPortname        string
 	spBaudrate        int
 	spReader          *bufio.Reader
@@ -158,7 +179,10 @@ func New(opts ...func(*Remotebox)) *Remotebox {
 		model:             rbUnknown,
 		ports:             make(map[string]*port),
 		portsList:         []*port{},
-		spPollingInterval: time.Millisecond * 100,
+		rb_ipaddress:      "127.0.0.1",
+		rb_ipport:         6000,
+		rb_Connection:     0, // 0: serial  1:tcp/ip
+		spPollingInterval: time.Millisecond * 500,
 		spPortname:        "/dev/ttyACM0",
 		spBaudrate:        9600, //doesn't really matter
 		closeCh:           make(chan struct{}),
@@ -174,7 +198,7 @@ func New(opts ...func(*Remotebox)) *Remotebox {
 
 func (r *Remotebox) Init() error {
 
-	spConfig := &serial.Config{
+	spConfig := &serial.Config{		
 		Name:        r.spPortname,
 		Baud:        r.spBaudrate,
 		ReadTimeout: time.Second,
@@ -183,12 +207,22 @@ func (r *Remotebox) Init() error {
 		StopBits:    1,
 	}
 
-	sp, err := serial.OpenPort(spConfig)
-	if err != nil {
-		return err
+
+	if r.rb_Connection == 0 {	// serial
+		sp, err := serial.OpenPort(spConfig)
+		if err != nil {
+			return err
+		}
+		r.sp = sp
+	} else {					// TCP
+		sp, err := net.Dial("tcp", fmt.Sprintf("%s"+":"+"%d", r.rb_ipaddress, r.rb_ipport))		
+		if err != nil {
+			return err
+		}
+		r.sp = sp
 	}
 
-	r.sp = sp
+	
 	r.spReader = bufio.NewReader(r.sp)
 
 	deviceInfo, err := r.getDeviceInfo()
@@ -356,7 +390,7 @@ func parseDeviceInfo(deviceInfo []string) (rbModel, string, error) {
 	// starting from 1.3g remotebox always identifies with "EA4TX" in the first line
 	default:
 		if !strings.Contains(deviceInfo[0], "EA4TX") {
-			return rbModel, "", parseError
+			//return rbModel, "", parseError
 		}
 	}
 
@@ -377,9 +411,9 @@ func (r *Remotebox) getConfig() (string, error) {
 	for i := 0; i <= 15; i++ {
 		c, err := r.read()
 		if err != nil {
-			if err == io.EOF {
-				continue
-			}
+			//		if err == io.EOF {
+			//			continue
+			//		}
 			return "", err
 		}
 		config = config + c
@@ -490,7 +524,9 @@ func (r *Remotebox) query() error {
 func (r *Remotebox) write(data []byte) (int, error) {
 	r.spWrite.Lock()
 	defer r.spWrite.Unlock()
+
 	return r.sp.Write(data)
+
 }
 
 // parseMsg checks the content of the received message from the RemoteBox,
@@ -506,7 +542,7 @@ func (r *Remotebox) parseMsg(msg string) error {
 	stateChanged := false
 
 	switch msg[0:2] {
-	case "SW":
+	case "SW", "ST":
 		p, ok := r.ports[msg[0:3]]
 		if !ok {
 			return fmt.Errorf("unknown port")
@@ -546,7 +582,7 @@ func (r *Remotebox) parseMsg(msg string) error {
 
 	// assuming the the special 4SQ version "ST" behaves the same
 	// way as the standard 4SQ version.
-	case "SQ", "ST":
+	case "SQ":
 		portMsg := msg[0:3]
 		p, ok := r.ports[portMsg]
 
@@ -787,7 +823,7 @@ func (r *Remotebox) serialize() sw.Device {
 
 	dev := sw.Device{
 		Name:  r.name,
-		Index: r.index,
+		Index: r.index,		
 	}
 
 	// serialize all ports
