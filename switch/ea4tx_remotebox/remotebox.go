@@ -152,9 +152,9 @@ type Remotebox struct {
 	firmwareVersion string
 	ports           map[string]*port
 	portsList       []*port
-	rb_ipaddress    string
-	rb_ipport       int
-	rb_Connection   int
+	Ipaddress       string
+	Ipport          int
+	Connection      int
 	sp              io.ReadWriteCloser
 	//spipaddress         string
 	spPortname        string
@@ -179,10 +179,10 @@ func New(opts ...func(*Remotebox)) *Remotebox {
 		model:             rbUnknown,
 		ports:             make(map[string]*port),
 		portsList:         []*port{},
-		rb_ipaddress:      "127.0.0.1",
-		rb_ipport:         6000,
-		rb_Connection:     0, // 0: serial  1:tcp/ip
-		spPollingInterval: time.Millisecond * 500,
+		Ipaddress:         "127.0.0.1",
+		Ipport:            6000,
+		Connection:        0, // 0: serial  1:tcp/ip
+		spPollingInterval: time.Millisecond * 1000,
 		spPortname:        "/dev/ttyACM0",
 		spBaudrate:        9600, //doesn't really matter
 		closeCh:           make(chan struct{}),
@@ -207,14 +207,14 @@ func (r *Remotebox) Init() error {
 		StopBits:    1,
 	}
 
-	if r.rb_Connection == 0 { // serial
+	if r.Connection == 0 { // serial
 		sp, err := serial.OpenPort(spConfig)
 		if err != nil {
 			return err
 		}
 		r.sp = sp
 	} else { // TCP
-		sp, err := net.Dial("tcp", fmt.Sprintf("%s"+":"+"%d", r.rb_ipaddress, r.rb_ipport))
+		sp, err := net.Dial("tcp", fmt.Sprintf("%s"+":"+"%d", r.Ipaddress, r.Ipport))
 		if err != nil {
 			return err
 		}

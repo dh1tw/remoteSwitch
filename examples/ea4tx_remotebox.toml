@@ -25,7 +25,7 @@ name = "My EA4TX Remotebox"
 # switches with an index < 2 and before all other switched with an index > 2.
 index = 2
 portname = "/dev/ttyACM0"
-
-ipaddress = "192.168.10.109"
-ipport = 6000
-typeConnection=1
+Ipaddress = "192.168.10.109"
+Ipport = 7011
+# Connection = 0 - Serial; Connection = 1 - tcp/ip 
+Connection=1
