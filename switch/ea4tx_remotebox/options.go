@@ -25,25 +25,24 @@ func Portname(pn string) func(*Remotebox) {
 	}
 }
 
-
 // IpAddress
 func Ipaddress(pn string) func(*Remotebox) {
 	return func(r *Remotebox) {
-		r.Ipaddress = pn
+		r.rbIpaddress = pn
 	}
 }
 
 // ipport
 func Ipport(i int) func(*Remotebox) {
 	return func(r *Remotebox) {
-		r.Ipport = i
+		r.rbIpport = i
 	}
 }
 
 // typeConnection
 func Connection(i int) func(*Remotebox) {
 	return func(r *Remotebox) {
-		r.Connection = i
+		r.rbConnection = i
 	}
 }
 

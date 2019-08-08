@@ -28,11 +28,11 @@ func GetEA4TXRemoteboxConfig(switchName string) ([]func(*rb.Remotebox), error) {
 	index := rb.Index(viper.GetInt(fmt.Sprintf("%s.index", switchName)))
 	portname := rb.Portname(viper.GetString(fmt.Sprintf("%s.portname", switchName)))
 	// new options for TCP connection
-	Ipaddress := rb.Ipaddress(viper.GetString(fmt.Sprintf("%s.ipaddress", switchName)))
-	Ipport := rb.Ipport(viper.GetInt(fmt.Sprintf("%s.ipport", switchName)))
-	Connection := rb.Connection(viper.GetInt(fmt.Sprintf("%s.connection", switchName)))
+	ipaddress := rb.Ipaddress(viper.GetString(fmt.Sprintf("%s.ipaddress", switchName)))
+	ipport := rb.Ipport(viper.GetInt(fmt.Sprintf("%s.ipport", switchName)))
+	connection := rb.Connection(viper.GetInt(fmt.Sprintf("%s.connection", switchName)))
 
-	opts := []func(*rb.Remotebox){name, index, portname, Ipaddress, Ipport, Connection}
+	opts := []func(*rb.Remotebox){name, index, portname, ipaddress, ipport, connection}
 
 	return opts, nil
 }
