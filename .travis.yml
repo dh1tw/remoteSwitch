@@ -63,7 +63,7 @@ before_deploy:
 deploy:
   provider: releases
   file_glob: true
-  file: remoteSwitch-v$TRAVIS_TAG-$GOOS-$GOARCH.*
+  file: remoteSwitch-$TRAVIS_TAG-$GOOS-$GOARCH.*
   skip_cleanup: true
   on:
     repo: dh1tw/remoteSwitch
