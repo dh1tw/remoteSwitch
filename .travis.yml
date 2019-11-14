@@ -9,43 +9,43 @@ matrix:
     - GOOS=linux
     - GOARCH=amd64
     - HOST_OS=linux
-    go: "1.11"
+    go: "1.13"
   - os: linux
     env:
     - GOOS=linux
     - GOARCH=386
     - HOST_OS=linux
-    go: "1.11"
+    go: "1.13"
   - os: linux
     env:
     - GOOS=linux
     - GOARCH=arm64
     - HOST_OS=linux
-    go: "1.11"
+    go: "1.13"
   - os: linux
     env:
     - GOOS=linux
     - GOARCH=arm
     - HOST_OS=linux
-    go: "1.11"
+    go: "1.13"
   - os: linux
     env:
     - GOOS=windows
     - GOARCH=amd64
     - HOST_OS=linux
-    go: "1.11"
+    go: "1.13"
   - os: linux
     env:
     - GOOS=windows
     - GOARCH=386
     - HOST_OS=linux
-    go: "1.10" # last version compatible with WinXP
+    go: "1.13"
   - os: osx
     env:
     - GOOS=darwin
     - GOARCH=amd64
     - HOST_OS=darwin
-    go: "1.11"
+    go: "1.13"
 
 before_install:
 - git fetch --tags
