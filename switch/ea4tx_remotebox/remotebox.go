@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"strconv"
 	"strings"
 	"sync"
@@ -174,21 +175,28 @@ func New(opts ...func(*Remotebox)) *Remotebox {
 
 func (r *Remotebox) Init() error {
 
-	spConfig := &serial.Config{
-		Name:        r.spPortname,
-		Baud:        r.spBaudrate,
-		ReadTimeout: time.Second,
-		Parity:      serial.ParityNone,
-		Size:        8,
-		StopBits:    1,
+	if strings.Contains(r.spPortname, ":") {
+		tcpConn, err := net.Dial("tcp", r.spPortname)
+		if err != nil {
+			return err
+		}
+		r.sp = tcpConn
+	} else {
+		spConfig := &serial.Config{
+			Name:        r.spPortname,
+			Baud:        r.spBaudrate,
+			ReadTimeout: time.Second,
+			Parity:      serial.ParityNone,
+			Size:        8,
+			StopBits:    1,
+		}
+		sp, err := serial.OpenPort(spConfig)
+		if err != nil {
+			return err
+		}
+		r.sp = sp
 	}
 
-	sp, err := serial.OpenPort(spConfig)
-	if err != nil {
-		return err
-	}
-
-	r.sp = sp
 	r.spReader = bufio.NewReader(r.sp)
 
 	deviceInfo, err := r.getDeviceInfo()

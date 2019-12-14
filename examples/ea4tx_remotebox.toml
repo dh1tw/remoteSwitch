@@ -24,4 +24,7 @@ name = "My EA4TX Remotebox"
 # setting index = 2 means that it will be visualized in the GUI after all other
 # switches with an index < 2 and before all other switched with an index > 2.
 index = 2
+# portname can be either a local device connected through USB or a
+# remote device via TCP. For the latter, just set IPAddress:Port.
 portname = "/dev/ttyACM0"
+# portname = "192.168.10.109:6000"
