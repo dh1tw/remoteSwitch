@@ -1,7 +1,6 @@
 language: go
 dist: xenial
 sudo: true
-
 matrix:
   include:
   - os: linux
@@ -9,44 +8,43 @@ matrix:
     - GOOS=linux
     - GOARCH=amd64
     - HOST_OS=linux
-    go: "1.14"
+    go: '1.14'
   - os: linux
     env:
     - GOOS=linux
     - GOARCH=386
     - HOST_OS=linux
-    go: "1.14"
+    go: '1.14'
   - os: linux
     env:
     - GOOS=linux
     - GOARCH=arm64
     - HOST_OS=linux
-    go: "1.14"
+    go: '1.14'
   - os: linux
     env:
     - GOOS=linux
     - GOARCH=arm
     - HOST_OS=linux
-    go: "1.14"
+    go: '1.14'
   - os: linux
     env:
     - GOOS=windows
     - GOARCH=amd64
     - HOST_OS=linux
-    go: "1.14"
+    go: '1.14'
   - os: linux
     env:
     - GOOS=windows
     - GOARCH=386
     - HOST_OS=linux
-    go: "1.14"
+    go: '1.14'
   - os: osx
     env:
     - GOOS=darwin
     - GOARCH=amd64
     - HOST_OS=darwin
-    go: "1.14"
-
+    go: '1.14'
 before_install:
 - git fetch --tags
 - GOARCH=amd64 GOOS=$HOSTOS go get golang.org/x/tools/cmd/stringer
@@ -54,17 +52,16 @@ before_install:
 - GOARCH=amd64 GOOS=$HOSTOS go get github.com/GeertJohan/go.rice/rice
 script:
 - go get ./...
-- ./ci/test.sh
+- "./ci/test.sh"
 - GOARCH=amd64 GOOS=$HOSTOS make vue_production
 - GOARCH=amd64 GOOS=$HOSTOS make generate
 - make dist
-# - file remoteSwitch
 before_deploy:
-- ./ci/pack.sh
+- "./ci/pack.sh"
 deploy:
   provider: releases
   api_key:
-    secure: ONLy30Z35WCU+ENbQMthF0Z5zIKeU5X2KKg7DtIriVWgvvlwoMWFEYfhYAVDwFx4vk+FhQruQrin1EsABpNB2E9IvjqBxYpDjN1XZSKBN7nvSMknZ97fuJ6TeNm35qkv9FnYVXFCAhADyYTa1mGvM6OURAE2ToldK7ybya0mJ6S4rGDoOLdFV3/LfB/9+Zlvn3UZD0RMJPP1JDPBmZFMyvM8J18UM6oIGlrT9kNqMEfDefliatxEb3bDenWGLWUlkyUOLiMqlMTPZCcUIqldAulycE7klYFcqIHZr1EZzMH3aTB/V1y6D0TXNKmLXma7Jizmr3sPDd7ZzUCn8v6E/T9ujWCLs87EWWnSu3DHUrMGcTdmzW8qLyGtnF2DanJNLB08ta0tEgj+7QlQ3zoWg38Cz31Jaj9fr8/xdcP/oqbu/rjYQMynjhu0LSCwLiaBMtZzgMQfhtk7Uhx67kEcnvw9PgzCMY7/Ps7Pd3VXm5O6mzNIdzAJPj6u2dwJfreEsr8XB68jln2GUKqz/9HXfD3/Xklwf2k83Zu343DJ4HbyJc7kIvIOMiq3AZbrQpFWxVCuHWS6EoKmp1N/NBSdHfrbLnlSPM16KTphqDCPi2f80PKKFLPIKLgldbtbrwejLu+n288EK3SeDz5PxkfFC2XJa39VDxDPRmAsfysy2Zw=
+    secure: ZDGsytySYzC4SKHgy9hiRKTYMj7PvpYErizY4amJ1ViKqu9KdCFGj4hy1ZybGtIwZAQweW9WB1cff0LetgW6aAueeu0IAX7fRYMLs8OsHMrxHgaOPNj5Mp7H+FJtf2IV8E/Vfwi0y1Fylucsah1cPRjCu6U8pKtmprLsKEqTXrlWg535IN6kUs+HhY5/Zrbk2Bs3hZZup7anx1CPN3KZpAL1f7K4HuRsNQWrDHQ7WIIxZkFk65Cybr9/7DyVeUiXOyBcCZ92d0lU7qbtOT5L4cQvddPet6Yj8ClWM+8UVpDDZD/MJb350ZdMafgfDwF1vxWbmGY8qnvdUIIblqX/soK79k7OCindgPAiHTY7DCAp/tZeFRUCCylA7qWqbogGHHEPEi+KjYAWuIx0cd3epVR9CqqSNPicBUIMvWqUOtpo/NTAWJje8AgfUEjxRQdF2Ze3pOtiekBw6rq+RwWoMb5eIwwyc0W1UrUpg1AlkgOKf8b3TG7+9dMLyEtymNb0eUuG0BABtxFylxOcqygLylNFsuVQeVhGGD5KOcIxpAKJHXvYdpfMpED2p6N+gUUPdoBqQlN1GeuKre0tuChMrrelavfxK0NA60eG+OiVVY1cQ6d/HTErpJAmiPOzrZCdup51MeECNNACbRmii0MgbsrMPsY782KA0Lx6WpddmVc=
   file: remoteSwitch-$TRAVIS_TAG-$GOOS-$GOARCH.*
   skip_cleanup: true
   on:
