@@ -6,12 +6,14 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/dh1tw/remoteSwitch/configparser"
 	sbSwitch "github.com/dh1tw/remoteSwitch/sb_switch"
 	sw "github.com/dh1tw/remoteSwitch/switch"
 	ds "github.com/dh1tw/remoteSwitch/switch/dummy_switch"
+	rb "github.com/dh1tw/remoteSwitch/switch/ea4tx_remotebox"
 	mpGPIO "github.com/dh1tw/remoteSwitch/switch/multi-purpose-switch-gpio"
 	smGPIO "github.com/dh1tw/remoteSwitch/switch/stackmatch_gpio"
 	"github.com/gogo/protobuf/proto"
@@ -122,6 +124,21 @@ func natsServer(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 		rpcSwitch.sw = sw
+
+	case "ea4tx-remotebox":
+		opts, err := configparser.GetEA4TXRemoteboxConfig(switchName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		opts = append(opts, rb.EventHandler(rpcSwitch.PublishDeviceUpdate))
+		opts = append(opts, rb.ErrorCh(switchError))
+		sw := rb.New(opts...)
+		if err := sw.Init(); err != nil {
+			log.Fatal(err)
+		}
+		rpcSwitch.sw = sw
+	default:
+		log.Fatalf("unknown switch type %s", switchType)
 	}
 
 	// better call this Addrs(?)
@@ -200,6 +217,7 @@ func natsServer(cmd *cobra.Command, args []string) {
 		}
 	}
 
+	rpcSwitch.Lock()
 	rpcSwitch.service = ss
 	rpcSwitch.pubSubTopic = fmt.Sprintf("%s.state", strings.Replace(serviceName, " ", "_", -1))
 
@@ -207,6 +225,7 @@ func natsServer(cmd *cobra.Command, args []string) {
 	sbSwitch.RegisterSbSwitchHandler(ss.Server(), rpcSwitch)
 
 	rpcSwitch.initialized = true
+	rpcSwitch.Unlock()
 
 	go func() {
 		for {
@@ -225,6 +244,7 @@ func natsServer(cmd *cobra.Command, args []string) {
 }
 
 type rpcSwitch struct {
+	sync.Mutex
 	initialized bool
 	service     micro.Service
 	sw          sw.Switcher
@@ -233,6 +253,8 @@ type rpcSwitch struct {
 
 func (s *rpcSwitch) PublishDeviceUpdate(swi sw.Switcher, d sw.Device) {
 
+	s.Lock()
+	defer s.Unlock()
 	if !s.initialized {
 		return
 	}

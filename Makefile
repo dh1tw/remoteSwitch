@@ -20,6 +20,7 @@ vue_debug:
 
 # embed the static files into a go file
 generate:
+	go generate ./...
 	cd hub; \
 	rice embed-go
 
@@ -41,8 +42,9 @@ lint:
 	done
 
 install-deps:
-	go get github.com/GeertJohan/go.rice/rice
-	go get ./...
+	go get -u golang.org/x/tools/cmd/stringer
+	go get -u github.com/GeertJohan/go.rice/rice
+	go get -u ./...
 
 clean:
 	-@rm remoteSwitch remoteSwitch-v*
