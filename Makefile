@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+SHELL := /bin/bash
+
 PKG := github.com/dh1tw/remoteSwitch
 COMMITID := $(shell git describe --always --long --dirty)
 COMMIT := $(shell git rev-parse --short HEAD)
@@ -32,6 +34,8 @@ build:
 dist:
 	go build -v -ldflags="-w -X github.com/dh1tw/remoteSwitch/cmd.commitHash=${COMMIT} \
 		-X github.com/dh1tw/remoteSwitch/cmd.version=${VERSION}"
+	# compress binary
+	if [ "${GOOS}" == "windows" ]; then upx remoteSwitch.exe; else upx remoteSwitch; fi
 
 vet:
 	@go vet ${PKG_LIST}
@@ -42,9 +46,8 @@ lint:
 	done
 
 install-deps:
-	go get -u golang.org/x/tools/cmd/stringer
-	go get -u github.com/GeertJohan/go.rice/rice
-	go get -u ./...
+	go get golang.org/x/tools/cmd/stringer
+	go get github.com/GeertJohan/go.rice/rice
 
 clean:
 	-@rm remoteSwitch remoteSwitch-v*

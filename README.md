@@ -1,7 +1,7 @@
 # RemoteSwitch
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/dh1tw/remoteSwitch)](https://goreportcard.com/report/github.com/dh1tw/remoteSwitch)
-[![Build Status](https://travis-ci.com/dh1tw/remoteSwitch.svg?branch=master)](https://travis-ci.com/dh1tw/remoteSwitch)
+[![Build Status](https://travis-ci.com/dh1tw/remoteSwitch.svg?branch=master)](https://github.com/dh1tw/remoteSwitch/workflows/Cross%20Platform%20build/badge.svg?branch=master)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://img.shields.io/badge/license-MIT-blue.svg)
 [![Coverage Status](https://coveralls.io/repos/github/dh1tw/remoteSwitch/badge.svg?branch=travis-setup)](https://coveralls.io/github/dh1tw/remoteSwitch?branch=travis-setup)
 [![Downloads](https://img.shields.io/github/downloads/dh1tw/remoteSwitch/total.svg?maxAge=1800)](https://github.com/dh1tw/remoteSwitch/releases)
