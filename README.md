@@ -21,6 +21,7 @@ has been reached.
 - Multi Purpose Switch GPIO (e.g Bandswitch, Beverages, etc.)
 - Stackmatch GPIO (Stackmatch, Combiners, 4-Squares. etc)
 - Dummy Switch (for testing purposes without hardware)
+- EA4TX Remotebox
 
 ## Supported Transportation Protocols
 
@@ -33,13 +34,8 @@ remoteSwitch is published under the permissive [MIT license](https://github.com/
 
 ## Download
 
-You can download a tarball / zip archive with the compiled binary for MacOS
-(AMD64), Linux (386/AMD64/ARM/ARM64) and Windows (386/AMD64) from the
-[releases](https://github.com/dh1tw/remoteSwitch/releases) page.
-
-remoteSwitch works particulary well on SoC boards like the Raspberry / Orange / Banana Pis.
-
-remoteSwitch is just a single executable.
+You can download a zip archive with the compiled binary for MacOS (AMD64), Linux (386/AMD64/ARM/ARM64) and Windows (386/AMD64) from the
+[releases](https://github.com/dh1tw/remoteSwitch/releases) page. remoteSwitch works particularly well on SoC boards like the Raspberry / Orange / Banana Pis. The application itself is just a single executable.
 
 ## Dependencies
 
@@ -77,39 +73,58 @@ So let's fire up a remoteSwitch server for a dummy 6x2 antenna/bandswitch.
 
 To get a list of supported flags for the nats server, execute:
 
-```
+``` bash
 $ ./remoteSwitch server nats --help
+
+
+The nats server allows you to expose an Switch on a nats.io broker. The broker
+can be located within your local lan or somewhere on the internet.
+
+Usage:
+  remoteSwitch server nats [flags]
+
+Flags:
+  -p, --broker-port int     Broker Port (default 4222)
+  -u, --broker-url string   Broker URL (default "localhost")
+  -h, --help                help for nats
+  -P, --password string     NATS Password
+  -U, --username string     NATS Username
+
+Global Flags:
+      --config string   config file (default is $HOME/.remoteSwitch.yaml)
 ```
+
+### Configuration
 
 While some of the parameters can be set via pflags, the switch configuration in particular **MUST** be set in a **config file** due to its complexity.
 
 As a starting point you might want to download a copy of the example configuration file
 [./remoteSwitch.toml](https://github.com/dh1tw/remoteSwitch/blob/master/.remoteSwitch.toml)
-which comes conveniently pre-configured for our dummy antenna/bandswitch.
+which comes conveniently pre-configured for our dummy antenna/bandswitch. The [example folder](https://github.com/dh1tw/remoteSwitch/tree/master/examples) in this repository contains additional example configurations.
 
-[NATS](https://nats.io) is an open source, lightweight, high performance message broker which is needed for the underlying communication.
-You can decide where to run your NATS instance. You can run it on your local
-machine, in a VPN or expose it to the internet. You can download the NATS broker [here](https://nats.io/download/nats-io/gnatsd/).
+### NATS Broker
+
+[NATS](https://nats.io) is an open source, lightweight, high performance message broker which is needed for the underlying communication. You can decide where to run your NATS instance. You can run it on your local machine, in a VPN or expose it to the internet. You can download the NATS broker [here](https://nats.io/download/nats-io/nats-server).
 
 run the NATS broker:
 
-```
-$ ./gnatsd
+``` bash
+$ ./nats-server
+
+[62418] 2020/04/11 02:46:09.413858 [INF] Starting nats-server version 2.1.6
+[62418] 2020/04/11 02:46:09.413959 [INF] Git commit [not set]
+[62418] 2020/04/11 02:46:09.414150 [INF] Listening for client connections on 0.0.0.0:4222
+[62418] 2020/04/11 02:46:09.414156 [INF] Server id is NDCPYYXYRSKD6PIBTS7YHZGEBWIN3CBPRH232CMHUWU3NXBQTTBBQRNF
+[62418] 2020/04/11 02:46:09.414158 [INF] Server is ready
 ```
 
-```
-[27781] 2019/01/10 21:36:41.886770 [INF] Starting nats-server version 1.0.4
-[27781] 2019/01/10 21:36:41.887812 [INF] Listening for client connections on 0.0.0.0:4222
-[27781] 2019/01/10 21:36:41.887821 [INF] Server is ready
-```
+### Connecting to the NATS broker
 
 Let's execute:
 
 ```bash
 $ ./remoteSwitch server nats --config=.remoteSwitch.toml
-```
 
-```
 Using config file:
 /home/dh1tw/.remoteSwitch.toml
 2019/01/11 23:50:20 Listening on shackbus.switch.6x2_Bandswitch
@@ -118,7 +133,7 @@ Using config file:
 
 ## Web Interface
 
-remoteSwitch comes with a built-in web server which allows to control all switches connected to the same NATS broker. All instances of remoteSwitch are automatically discovered.
+remoteSwitch comes with a built-in web server which allows to control all switches connected to the same NATS broker. All instances of remoteSwitch are automatically discovered. You can run several instances of the web server. This might be handy if you have to deal with lan/wan restrictions or if you need redundancy.
 
 Simply launch:
 
@@ -151,38 +166,29 @@ The GPIO switches are pretty flexible in configuration and should be able to cop
 
 ## Behaviour on Errors
 
-If an error occures from which remoteSwitch can not recover, the application
-exits. It is recommended to execute remoteSwitch as a service under the supervision of a scheduler like [systemd](https://en.wikipedia.org/wiki/Systemd).
+If an error occurs from which remoteSwitch can not recover, the application exits. It is recommended to execute remoteSwitch as a service under the supervision of a scheduler like [systemd](https://en.wikipedia.org/wiki/Systemd).
 
 ## Bug reports, Questions & Pull Requests
 
-Please use the Github [Issue tracker](https://github.com/dh1tw/remoteSwitch/issues)
-to report bugs and ask questions! If you would like to contribute to remoteSwitch,
-[pull requests](https://help.github.com/articles/creating-a-pull-request/) are
-welcome! However please consider to provide unit tests with the PR to verify
-the proper behaviour.
+Please use the Github [Issue tracker](https://github.com/dh1tw/remoteSwitch/issues) to report bugs and ask questions! If you would like to contribute to remoteSwitch, [pull requests](https://help.github.com/articles/creating-a-pull-request/) are welcome! However please consider to provide unit tests with the PR to verify the proper behavior.
 
 If you file a bug report, please include always the version of remoteSwitch
 you are running:
 
 ```` bash
 $ remoteSwitch.exe version
-````
 
-````
-copyright Tobias Wellnitz, DH1TW, 2019
-remoteSwitch Version: 0.1.0, darwin/amd64, BuildDate: 2019-01-09T00:58:00+02:00, Commit: 338ff13
+copyright Tobias Wellnitz, DH1TW, 2020
+remoteSwitch Version: v0.1.0, darwin/amd64, BuildDate: 2020-04-11T02:50:26+02:00, Commit: 528027d
 ````
 
 ## Documentation
 
-The auto generated documentation can be found at
-[godoc.org](https://godoc.org/github.com/dh1tw/remoteSwitch).
+The auto generated documentation can be found at [godoc.org](https://godoc.org/github.com/dh1tw/remoteSwitch).
 
 ## How to build
 
-In order to compile remoteSwitch from the sources, you need to have
-[Go](https://golang.org) installed and configured.
+In order to compile remoteSwitch from the sources, you need to have [Go](https://golang.org) installed and configured.
 
 This his how to checkout and compile remoteSwitch under Linux/MacOS:
 
@@ -194,8 +200,7 @@ $ make
 
 ## How to execute the tests
 
-All critial packages have their own set of unit tests. The tests can be
-executed with the following commands:
+All critical packages have their own set of unit tests. The tests can be executed with the following commands:
 
 ```bash
 $ cd $GOPATH/src/github.com/remoteSwitch
@@ -203,5 +208,4 @@ $ go test -v -race ./...
 
 ```
 
-The datarace detector might not be available on all platforms / operating
-systems.
+The race detector might not be available on all platforms / operating systems.
