@@ -12,9 +12,7 @@ remoteSwitch is a cross platform application which makes your (antenna/band/powe
 
 remoteSwitch is written in the programing language [Go](https://golang.org).
 
-**ADVICE**: This project is **under development**. The parameters and the ICD
-are still **not stable** and subject to change until the first major version
-has been reached.
+**ADVICE**: This project is **under development**. The parameters and the ICD are still **not stable** and subject to change until the first major version has been reached.
 
 ## Supported switch types
 
@@ -166,7 +164,7 @@ The GPIO switches are pretty flexible in configuration and should be able to cop
 
 ## Behaviour on Errors
 
-If an error occurs from which remoteSwitch can not recover, the application exits. It is recommended to execute remoteSwitch as a service under the supervision of a scheduler like [systemd](https://en.wikipedia.org/wiki/Systemd).
+If an error occurs from which remoteSwitch can not recover, the application exits. It is recommended to execute remoteSwitch as a service under the supervision of a scheduler like [systemd](https://en.wikipedia.org/wiki/Systemd) on Linux or [NSSM - the Non-Sucking Service Manager](https://nssm.cc/download) on Windows.
 
 ## Bug reports, Questions & Pull Requests
 
