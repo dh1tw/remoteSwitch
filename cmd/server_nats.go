@@ -199,9 +199,6 @@ func natsServer(cmd *cobra.Command, args []string) {
 		micro.Server(svr),
 	)
 
-	// initialize our service
-	ss.Init()
-
 	// before we annouce this service, we have to ensure that no other
 	// service with the same name exists. Therefore we query the
 	// registry for all other existing services.
