@@ -20,7 +20,7 @@
     </div>
     <div id="switches">
         <div v-for="sbs in sortedSwitches">
-          <sb-switch :name="sbs.name" :ports="sbs.ports" v-on:set-port="setPort" v-on:set-ports="setPorts"></sb-switch>
+          <sb-switch :name="sbs.name" :ports="sbs.ports" v-on:set-terminal="setTerminal" v-on:set-port="setPort"></sb-switch>
         </div>
     </div>
     <div id="connection">

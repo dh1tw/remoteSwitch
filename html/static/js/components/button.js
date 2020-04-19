@@ -12,12 +12,12 @@ var Button = {
     methods: {
         // handle right clicks
         clickHandler: function(e){
-            this.$emit("set-port-exclusive", this.port, this.label)
+            this.$emit("set-terminal-exclusive", this.port, this.label);
             // omit standard right click menu
             e.preventDefault();
         },
         setPort: function(){
-            this.$emit("set-port", this.port, this.label, !this.state)
+            this.$emit("set-terminal", this.port, this.label, !this.state);
         },
     },
     watch: {},
@@ -26,4 +26,4 @@ var Button = {
             return !this.state;
         }
     }
-}
+};

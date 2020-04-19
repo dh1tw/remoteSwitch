@@ -27,12 +27,12 @@ var vm = new Vue({
         getSwitchObj: function (switchName) {
 
             if (switchName in this.Switches) {
-                return
+                return;
             }
 
             this.$http.get("/api/switch/" + switchName).then(response => {
                 this.addSwitch(response.body);
-            })
+            });
         },
 
         // add a switch
@@ -65,17 +65,17 @@ var vm = new Vue({
                 // console.log(eventMsg);
 
                 // add switch
-                if (eventMsg['name'] == 'add') {
-                    this.getSwitchObj(eventMsg['device_name']);
+                if (eventMsg.name == 'add') {
+                    this.getSwitchObj(eventMsg.device_name);
 
                     // remove switch
-                } else if (eventMsg['name'] == 'remove') {
-                    this.removeSwitch(eventMsg['device_name']);
+                } else if (eventMsg.name == 'remove') {
+                    this.removeSwitch(eventMsg.device_name);
 
                     // update
-                } else if (eventMsg['name'] == 'update') {
-                    updatedDevice = eventMsg['device']
-                    switchName = eventMsg['device_name']
+                } else if (eventMsg.name == 'update') {
+                    updatedDevice = eventMsg.device;
+                    switchName = eventMsg.device_name;
                     if (switchName in this.Switches) {
                         // copy values
                         this.$set(this.Switches, switchName, updatedDevice);
@@ -84,33 +84,33 @@ var vm = new Vue({
             }.bind(this));
 
             this.ws.addEventListener('open', function () {
-                this.connected = true
+                this.connected = true;
                 setTimeout(function () {
                     this.hideConnectionMsg = true;
-                }.bind(this), 1500)
+                }.bind(this), 1500);
             }.bind(this));
 
             this.ws.addEventListener('close', function () {
-                this.connected = false
+                this.connected = false;
                 this.hideConnectionMsg = false;
-                for (sw in this.Switches) {
+                for (var sw in this.Switches) {
                     this.removeSwitch(this.Switches[sw]);
                 }
-                this.Switches = {}
+                this.Switches = {};
             }.bind(this));
         },
 
-        // send a request to the server to set a particular port
-        setPort: function (switchName, portName, terminalName, terminalState) {
-
+        // send a request to the server to set the state of a particular terminal
+        setTerminal: function (switchName, portName, terminalName, terminalState) {
             this.$http.put("/api/switch/" + switchName + "/port/" + portName,
                 JSON.stringify({
                     name: portName,
                     terminals: [{ "name": terminalName, "state": terminalState }],
                 }));
         },
-        setPorts: function(switchName, portName, terminals) {
-            this.$http.put("/api/switch/" + switchName + "/port",
+        // send a request to the server to set an entire port
+        setPort: function(switchName, portName, terminals) {
+            this.$http.put("/api/switch/" + switchName + "/port/" + portName,
             JSON.stringify({
                 name: portName,
                 terminals: terminals,
@@ -133,12 +133,12 @@ var vm = new Vue({
             return true;
         },
         sortedSwitches: function (){
-            var switches = []
-            for (sw in this.Switches) {
-                switches.push(this.Switches[sw])
+            var switches = [];
+            for (var sw in this.Switches) {
+                switches.push(this.Switches[sw]);
             }
-            this.sortByKey(switches, "index")
-            return switches
+            this.sortByKey(switches, "index");
+            return switches;
         },
     }
 });
