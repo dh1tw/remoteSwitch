@@ -46,6 +46,10 @@ jobs:
         sudo apt install upx -y
         make install-deps
     -
+      name: use JS production libs
+      run: |
+        make vue_production
+    -
       name: Generate adapter code
       run: |
         export PATH=/home/runner/go/bin:$PATH
@@ -88,6 +92,10 @@ jobs:
       run: |
         brew install upx
         make install-deps
+    -
+      name: use JS production libs
+      run: |
+        make vue_production
     -
       name: Generate adapter code
       run: |
