@@ -136,12 +136,12 @@ func webServer(cmd *cobra.Command, args []string) {
 	}
 
 	cache := &serviceCache{
-		ttl:   time.Second * 10,
+		ttl:   time.Second * 25,
 		cache: make(map[string]time.Time),
 	}
 	w := webserver{h, cl, cache}
 
-	// will be closed when an error occures in the webserver goroutine
+	// will be closed when an error occurs in the webserver goroutine
 	webserverErrorCh := make(chan struct{})
 
 	// launch webserver
@@ -155,7 +155,7 @@ func webServer(cmd *cobra.Command, args []string) {
 	// from now on watch the registry in a separate go-routine for changes
 	go w.watchRegistry()
 
-	// check regularily if the proxy objects are still alive
+	// check regularly if the proxy objects are still alive
 	go w.checkTimeout()
 
 	// Channel to handle OS signals
@@ -246,7 +246,7 @@ func (w *webserver) addSwitch(switchServiceName string) error {
 
 	go func() {
 		<-doneCh
-		fmt.Println("disposing:", r.Name())
+		// fmt.Println("disposing:", r.Name())
 		w.RemoveSwitch(r)
 	}()
 
@@ -264,7 +264,7 @@ func (w *webserver) listAndAddSwitch() error {
 	}
 
 	for _, service := range services {
-		fmt.Println("found:", service.Name)
+		// fmt.Println("found:", service.Name)
 		if !isSwitch(service.Name) {
 			continue
 		}
@@ -346,6 +346,7 @@ func (w *webserver) checkTimeout() {
 				if !exists {
 					continue
 				}
+				log.Printf("TTL expired '%s'", switchName)
 				r.Close()
 				delete(w.cache.cache, service)
 			}

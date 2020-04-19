@@ -75,7 +75,7 @@ func (hub *Hub) addSwitch(r sw.Switcher) error {
 	if err := hub.broadcastToWsClients(ev); err != nil {
 		fmt.Println(err)
 	}
-	log.Printf("added switch (%s)\n", r.Name())
+	log.Printf("added switch '%s'\n", r.Name())
 
 	return nil
 }
