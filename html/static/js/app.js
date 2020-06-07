@@ -10,7 +10,6 @@ var vm = new Vue({
     },
     components: {
         'sb-switch': Switch,
-
     },
     created: function () {
         window.addEventListener('resize', this.getWindowSize);
@@ -106,18 +105,26 @@ var vm = new Vue({
                 JSON.stringify({
                     name: portName,
                     terminals: [{ "name": terminalName, "state": terminalState }],
-                }));
+                })).then(response => {
+                    // console.log("set terminal ok");
+                }, response => {
+                    console.log("error callback", response);
+                });
         },
         // send a request to the server to set an entire port
-        setPort: function(switchName, portName, terminals) {
+        setPort: function (switchName, portName, terminals) {
             this.$http.put("/api/switch/" + switchName + "/port/" + portName,
-            JSON.stringify({
-                name: portName,
-                terminals: terminals,
-            }));
+                JSON.stringify({
+                    name: portName,
+                    terminals: terminals,
+                })).then(response => {
+                    // console.log("did set port");
+                }, response => {
+                    console.log("oh no!");
+                });
         },
-        sortByKey: function(array, key) {
-            return array.sort(function(a, b) {
+        sortByKey: function (array, key) {
+            return array.sort(function (a, b) {
                 var x = a[key]; var y = b[key];
                 return ((x < y) ? -1 : ((x > y) ? 1 : 0));
             });
@@ -132,7 +139,7 @@ var vm = new Vue({
             }
             return true;
         },
-        sortedSwitches: function (){
+        sortedSwitches: function () {
             var switches = [];
             for (var sw in this.Switches) {
                 switches.push(this.Switches[sw]);
