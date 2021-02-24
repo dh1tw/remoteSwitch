@@ -6,9 +6,11 @@
 [![Coverage Status](https://coveralls.io/repos/github/dh1tw/remoteSwitch/badge.svg?branch=travis-setup)](https://coveralls.io/github/dh1tw/remoteSwitch?branch=travis-setup)
 [![Downloads](https://img.shields.io/github/downloads/dh1tw/remoteSwitch/total.svg?maxAge=1800)](https://github.com/dh1tw/remoteSwitch/releases)
 
-![Alt text](https://i.imgur.com/YptJPYH.png "remoteSwitch WebUI")
+[![Alt text](https://i.imgur.com/YptJPYH.png "remoteSwitch WebUI")](https://demo.switch.shackbus.org)
 
 remoteSwitch is a cross platform application which makes your (antenna/band/power...) switches available on the network.
+
+To get a first impression, you're welcome to play with our public demo at [demo.switch.shackbus.org](https://demo.switch.shackbus.org).
 
 remoteSwitch is written in the programing language [Go](https://golang.org).
 
