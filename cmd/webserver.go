@@ -9,17 +9,19 @@ import (
 	"sync"
 	"time"
 
+	natsBroker "github.com/asim/go-micro/plugins/broker/nats/v3"
+	natsReg "github.com/asim/go-micro/plugins/registry/nats/v3"
 	"github.com/dh1tw/remoteSwitch/hub"
 	sw "github.com/dh1tw/remoteSwitch/switch"
 	"github.com/dh1tw/remoteSwitch/switch/sbSwitchProxy"
-	"github.com/micro/go-micro/broker"
-	"github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/client/selector/static"
-	"github.com/micro/go-micro/registry"
-	"github.com/micro/go-micro/transport"
-	natsBroker "github.com/micro/go-plugins/broker/nats"
-	natsReg "github.com/micro/go-plugins/registry/nats"
-	natsTr "github.com/micro/go-plugins/transport/nats"
+
+	// regSelector "github.com/asim/go-micro/plugins/selector/registry"
+	// static "github.com/asim/go-micro/plugins/selector/static/v3"
+	natsTr "github.com/asim/go-micro/plugins/transport/nats/v3"
+	"github.com/asim/go-micro/v3/broker"
+	"github.com/asim/go-micro/v3/client"
+	"github.com/asim/go-micro/v3/registry"
+	"github.com/asim/go-micro/v3/transport"
 	nats "github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -127,7 +129,9 @@ func webServer(cmd *cobra.Command, args []string) {
 		client.Registry(reg),
 		client.PoolSize(1),
 		client.PoolTTL(time.Hour*8760), // one year - don't TTL our connection
-		client.Selector(static.NewSelector()),
+		client.ContentType("application/proto-rpc"),
+		// client.Selector(regSelector.NewSelector()),
+		// client.Selector(static.NewSelector()),
 	)
 
 	if err := cl.Init(); err != nil {
@@ -278,11 +282,7 @@ func (w *webserver) listAndAddSwitch() error {
 
 // isSwitch checks a serviceName string if it is a shackbus switch
 func isSwitch(serviceName string) bool {
-
-	if !strings.Contains(serviceName, "shackbus.switch.") {
-		return false
-	}
-	return true
+	return strings.Contains(serviceName, "shackbus.switch.")
 }
 
 // watchRegistry is a blocking function which continuously

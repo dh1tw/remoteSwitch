@@ -6,11 +6,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/asim/go-micro/v3/broker"
+	"github.com/asim/go-micro/v3/client"
 	sbSwitch "github.com/dh1tw/remoteSwitch/sb_switch"
 	sw "github.com/dh1tw/remoteSwitch/switch"
-	"github.com/gogo/protobuf/proto"
-	"github.com/micro/go-micro/broker"
-	"github.com/micro/go-micro/client"
+	"google.golang.org/protobuf/proto"
 )
 
 type SbSwitchProxy struct {

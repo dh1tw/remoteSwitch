@@ -9,6 +9,12 @@ import (
 	"sync"
 	"time"
 
+	natsBroker "github.com/asim/go-micro/plugins/broker/nats/v3"
+	natsReg "github.com/asim/go-micro/plugins/registry/nats/v3"
+	natsTr "github.com/asim/go-micro/plugins/transport/nats/v3"
+	micro "github.com/asim/go-micro/v3"
+	"github.com/asim/go-micro/v3/broker"
+	"github.com/asim/go-micro/v3/server"
 	"github.com/dh1tw/remoteSwitch/configparser"
 	sbSwitch "github.com/dh1tw/remoteSwitch/sb_switch"
 	sw "github.com/dh1tw/remoteSwitch/switch"
@@ -16,16 +22,10 @@ import (
 	rb "github.com/dh1tw/remoteSwitch/switch/ea4tx_remotebox"
 	mpGPIO "github.com/dh1tw/remoteSwitch/switch/multi-purpose-switch-gpio"
 	smGPIO "github.com/dh1tw/remoteSwitch/switch/stackmatch_gpio"
-	"github.com/gogo/protobuf/proto"
-	micro "github.com/micro/go-micro"
-	"github.com/micro/go-micro/broker"
-	"github.com/micro/go-micro/server"
-	natsBroker "github.com/micro/go-plugins/broker/nats"
-	natsReg "github.com/micro/go-plugins/registry/nats"
-	natsTr "github.com/micro/go-plugins/transport/nats"
 	nats "github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"google.golang.org/protobuf/proto"
 )
 
 // natsCmd represents the nats command
@@ -175,12 +175,12 @@ func natsServer(cmd *cobra.Command, args []string) {
 	// used in nats as the topic on which the server (transport) will be
 	// listening on.
 	svr := server.NewServer(
-		server.Name(serviceName),
-		server.Address(validateSubject(serviceName)),
 		server.RegisterInterval(time.Second*10),
 		server.Transport(tr),
 		server.Registry(reg),
 		server.Broker(br),
+		server.Name(validateSubject(serviceName)),
+		server.Address(validateSubject(serviceName)),
 	)
 
 	// version is typically defined through a git tag and injected during
@@ -191,11 +191,11 @@ func natsServer(cmd *cobra.Command, args []string) {
 
 	// let's create the new rotator service
 	ss := micro.NewService(
-		micro.Name(serviceName),
 		micro.Broker(br),
 		micro.Transport(tr),
 		micro.Registry(reg),
 		micro.Version(version),
+		micro.Name(serviceName),
 		micro.Server(svr),
 	)
 

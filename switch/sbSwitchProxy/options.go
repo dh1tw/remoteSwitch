@@ -1,8 +1,8 @@
 package sbSwitchProxy
 
 import (
+	"github.com/asim/go-micro/v3/client"
 	sw "github.com/dh1tw/remoteSwitch/switch"
-	"github.com/micro/go-micro/client"
 )
 
 func Client(cli client.Client) func(*SbSwitchProxy) {

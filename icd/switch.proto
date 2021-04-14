@@ -2,13 +2,17 @@ syntax= "proto3";
 
 package shackbus;
 
+option go_package = "./sb_switch";
+
 service SbSwitch{
     rpc GetPort(PortName) returns (Port);
     rpc SetPort(PortRequest) returns (None);
     rpc GetDevice(None) returns (Device);
 }
 
-message None {}
+message None {
+    string test = 1;
+}
 
 message Terminal{
     string name = 1;
