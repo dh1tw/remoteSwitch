@@ -10,21 +10,22 @@ VERSION := $(shell git describe --tags)
 PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
 GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/)
 
-all: vue_production generate dist vue_debug
+GOOS := $(shell go env GOOS)
+GOARCH := $(shell go env GOARCH)
+
+all: vue_production generate build
 
 # replace the debug version of vue.js with it's production version
 vue_production:
-	find html/index.html -exec sed -i '' 's/vue.js/vue.min.js/g' {} \;
+	find hub/html/index.html -exec sed -i '' 's/vue.js/vue.min.js/g' {} \;
 
 # replace the debug version of vue.js with it's production version
 vue_debug:
-	find html/index.html -exec sed -i '' 's/vue.min.js/vue.js/g' {} \;
+	find hub/html/index.html -exec sed -i '' 's/vue.min.js/vue.js/g' {} \;
 
 # embed the static files into a go file
 generate:
 	go generate ./...
-	cd hub; \
-	rice embed-go
 
 build:
 	go build -v -ldflags="-X github.com/dh1tw/remoteSwitch/cmd.commitHash=${COMMIT} \
@@ -35,7 +36,17 @@ dist:
 	go build -v -ldflags="-w -X github.com/dh1tw/remoteSwitch/cmd.commitHash=${COMMIT} \
 		-X github.com/dh1tw/remoteSwitch/cmd.version=${VERSION}"
 	# compress binary
-	if [ "${GOOS}" == "windows" ]; then upx remoteSwitch.exe; else upx remoteSwitch; fi
+	# there is a know issue that upx currently doesn't work with darwin/arm64.
+	# See https://github.com/upx/upx/issues/424
+	# until it's resolved, we ship darwin/arm64 uncompressed.
+	if [ "${GOOS}" == "windows" ]; \
+		then upx remoteSwitch.exe; \
+		else \
+		if [ "${GOOS}" == "darwin" ] && [ "${GOARCH}" == "arm64" ]; \
+			then true; \
+		else upx remoteSwitch; \
+		fi \
+	fi
 
 vet:
 	@go vet ${PKG_LIST}
@@ -47,7 +58,6 @@ lint:
 
 install-deps:
 	go get golang.org/x/tools/cmd/stringer
-	go get github.com/GeertJohan/go.rice/rice
 
 clean:
 	-@rm remoteSwitch remoteSwitch-v*

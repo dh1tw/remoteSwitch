@@ -1,16 +1,21 @@
 package hub
 
 import (
+	"embed"
 	"fmt"
+	"io/fs"
 	"log"
 	"net/http"
 	"regexp"
 	"sync"
 
-	rice "github.com/GeertJohan/go.rice"
+	nfs "github.com/dh1tw/nolistfs"
 	sw "github.com/dh1tw/remoteSwitch/switch"
 	"github.com/gorilla/mux"
 )
+
+//go:embed html
+var htmlDirectory embed.FS
 
 // Hub is a struct which makes a switch available through http.
 type Hub struct {
@@ -127,9 +132,8 @@ func (hub *Hub) addWsClient(client *WsClient) {
 	hub.Lock()
 	defer hub.Unlock()
 
-	if _, alreadyInMap := hub.wsClients[client]; alreadyInMap {
-		delete(hub.wsClients, client)
-	}
+	delete(hub.wsClients, client)
+
 	hub.wsClients[client] = true
 
 	// we need to listen on the websocket so that the incoming ping
@@ -144,9 +148,7 @@ func (hub *Hub) removeWsClient(c *WsClient) {
 	hub.Lock()
 	defer hub.Unlock()
 
-	if _, ok := hub.wsClients[c]; ok {
-		delete(hub.wsClients, c)
-	}
+	delete(hub.wsClients, c)
 
 	c.Close()
 	log.Printf("websocket client disconnected (%v)\n", c.RemoteAddr())
@@ -161,8 +163,16 @@ func (hub *Hub) ListenHTTP(host string, port int, errorCh chan<- struct{}) {
 
 	defer close(errorCh)
 
-	box := rice.MustFindBox("../html")
-	hub.fileServer = http.FileServer(box.HTTPBox())
+	webAssets, err := fs.Sub(htmlDirectory, "html")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	webAssetsFS := nfs.New(http.FS(webAssets))
+
+	hub.fileServer = http.FileServer(webAssetsFS)
+
 	hub.router = mux.NewRouter().StrictSlash(true)
 
 	// load the HTTP routes with their respective endpoints
@@ -171,7 +181,7 @@ func (hub *Hub) ListenHTTP(host string, port int, errorCh chan<- struct{}) {
 	// Listen for incoming connections.
 	log.Printf("listening on %s:%d for HTTP connections\n", host, port)
 
-	err := http.ListenAndServe(fmt.Sprintf("%s:%d", host, port), hub.apiRedirectRouter(hub.router))
+	err = http.ListenAndServe(fmt.Sprintf("%s:%d", host, port), hub.apiRedirectRouter(hub.router))
 	if err != nil {
 		log.Println(err)
 		return

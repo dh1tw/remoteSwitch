@@ -46,8 +46,7 @@ body {
     width: fit-content;
     margin-left: 10px;
     margin-right: auto;
-    /* padding-left: 20px;
-    padding-right: 20px; */
+    padding-bottom: 20px;
 }
 
 .switch {
