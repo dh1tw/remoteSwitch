@@ -1,0 +1,66 @@
+# This is a remoteSwitch example configuration file for a an aviosys IP9258
+# ethernet connected based power switch. This device has 4 power sockets
+# which can be turned on/off remotely.
+
+# Configuration for connection to the NATS broker
+[nats]
+broker-url = "localhost"
+broker-port = 4222
+username = ""
+password = ""
+
+# All remoteSwitches are at their core "switches". Here we specify the type
+# and configuration key of the switch. In our case we select "aviosys-ip9258".
+[switch]
+name = "mypowerswitch"
+type = "aviosys-ip9258"
+
+# This is the main configuration key. The name of the key is arbitrary, however
+# it must be referenced corectly in the [switch] key.
+[mypowerswitch]
+name = "IP9258 Power Controller"
+# setting index = 5 means that it will be visualized in the GUI after all other
+# switches with an index < 5 and before all other switched with an index > 5.
+index = 5
+# IP9258 requires a username. 'admin' is the default username
+username = "admin"
+# IP9258 requires a password for the username specified above. The default
+# password for user 'admin' is '12345678'
+password = "12345678"
+# the IP9258 is connected and controlled through ethernet. You can either
+# specify the IP address or the domain name of the device.
+#url = "ip9268.local.corp"
+url = "192.168.10.10"
+# the IP9258 has 4 AC outlets which can be controlled. In order to remain 
+# consistent with the remoteSwitch terminology, an AC outlet is called 'Terminal'.
+# A maximum of 4 terminals can be provided. For each terminal a dedicated
+# configuration item has to be created (see below).
+terminals = ["radio", "pc", "amplifier", "rotators"]
+
+# in this example, 'radio' describes one 'terminal'
+[radio]
+# name of the terminal. Typically this name will also shown on the button
+# of a GUI.
+name = "Icom IC7610"
+# index specifies the order in which this terminal will be displayed in the GUI
+index = 1
+# outlet is the physical outlet/plug to which you connect the consumer
+outlet = 1
+
+# another terminal
+[pc]
+name = "Station PC"
+index = 2
+outlet = 2
+
+# another terminal
+[amplifier]
+name = "Acom 2000A"
+index = 3
+outlet = 3
+
+# another terminal
+[rotators]
+name = "All Rotators"
+index = 4
+outlet = 4

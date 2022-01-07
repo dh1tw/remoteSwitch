@@ -18,6 +18,7 @@ import (
 	"github.com/dh1tw/remoteSwitch/configparser"
 	sbSwitch "github.com/dh1tw/remoteSwitch/sb_switch"
 	sw "github.com/dh1tw/remoteSwitch/switch"
+	ip9258 "github.com/dh1tw/remoteSwitch/switch/aviosys_ip9258"
 	ds "github.com/dh1tw/remoteSwitch/switch/dummy_switch"
 	rb "github.com/dh1tw/remoteSwitch/switch/ea4tx_remotebox"
 	mpGPIO "github.com/dh1tw/remoteSwitch/switch/multi-purpose-switch-gpio"
@@ -133,6 +134,18 @@ func natsServer(cmd *cobra.Command, args []string) {
 		opts = append(opts, rb.EventHandler(rpcSwitch.PublishDeviceUpdate))
 		opts = append(opts, rb.ErrorCh(switchError))
 		sw := rb.New(opts...)
+		if err := sw.Init(); err != nil {
+			log.Fatal(err)
+		}
+		rpcSwitch.sw = sw
+	case "aviosys-ip9258":
+		opts, err := configparser.GetIP9258Config(switchName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		opts = append(opts, ip9258.EventHandler(rpcSwitch.PublishDeviceUpdate))
+		opts = append(opts, ip9258.ErrorCh(switchError))
+		sw := ip9258.NewIP9258(opts...)
 		if err := sw.Init(); err != nil {
 			log.Fatal(err)
 		}
