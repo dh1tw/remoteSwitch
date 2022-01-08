@@ -4,15 +4,20 @@ var Switch = {
         'device-name': DeviceName,
     },
     template: `
-        <div class="switch">
+        <div class="switch container-xl">
             <device-name :name="name"></device-name>
-            <div v-for="port in ports">
-            <div class="port"> Port {{port.name}}
-                <div class="btn-group" role="group" aria-label="..." v-for="terminal in port.terminals">
-                <swbutton :label="terminal.name" :port="port.name" :state="terminal.state" v-on:set-terminal="setTerminal" v-on:set-terminal-exclusive="setTerminalExclusive">
-                </swbutton>
+            <div class="row align-items-center flex-nowrap port" v-for="port in ports">
+                <div class="name col-auto">
+                    Port {{port.name}}
                 </div>
-            </div>
+                <div class="col-md-auto col-11">
+                    <div class="row g-1">
+                        <div class="col-auto" v-for="terminal in port.terminals">
+                            <swbutton :label="terminal.name" :port="port.name" :state="terminal.state" v-on:set-terminal="setTerminal" v-on:set-terminal-exclusive="setTerminalExclusive">
+                            </swbutton>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>`,
     props: {
@@ -43,7 +48,7 @@ var Switch = {
                     name: port.terminals[i].name,
                     state: false,
                 };
-                if (terminal.name == terminalName){
+                if (terminal.name == terminalName) {
                     terminal.state = true;
                 }
                 terminals.push(terminal);

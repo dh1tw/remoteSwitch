@@ -7,22 +7,22 @@ var Button = {
         state: Boolean,
         port: String,
     },
-    mounted: function(){},
-    beforeDestroy: function(){},
+    mounted: function () { },
+    beforeDestroy: function () { },
     methods: {
         // handle right clicks
-        clickHandler: function(e){
+        clickHandler: function (e) {
             this.$emit("set-terminal-exclusive", this.port, this.label);
             // omit standard right click menu
             e.preventDefault();
         },
-        setPort: function(){
+        setPort: function () {
             this.$emit("set-terminal", this.port, this.label, !this.state);
         },
     },
     watch: {},
     computed: {
-        inverted_state: function(){
+        inverted_state: function () {
             return !this.state;
         }
     }

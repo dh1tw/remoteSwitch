@@ -8,7 +8,9 @@
   <title>RemoteSwitch WebUI</title>
   <link rel="css?family=Inconsolata">
   <link rel="stylesheet" href="/static/css/font-awesome.min.css">
-  <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <!-- <link rel="stylesheet" href="/static/css/bootstrap.min.css"> -->
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
@@ -18,10 +20,11 @@
       <i class="fa fa-spinner fa-spin spinner" aria-hidden="true"></i>
       <p> Searching for Switches...</p>
     </div>
-    <div id="switches">
-        <div v-for="sbs in sortedSwitches">
-          <sb-switch :name="sbs.name" :ports="sbs.ports" v-on:set-terminal="setTerminal" v-on:set-port="setPort"></sb-switch>
-        </div>
+    <div id="switches" class="container-xl">
+      <div v-for=" sbs in sortedSwitches">
+        <sb-switch :name="sbs.name" :ports="sbs.ports" v-on:set-terminal="setTerminal" v-on:set-port="setPort">
+        </sb-switch>
+      </div>
     </div>
     <div id="connection">
       <p id="connected" class="bg-success" v-bind:class="{'hidden': hideConnectionMsg}" v-if="connected">
@@ -38,7 +41,10 @@
   <script src="/static/js/components/button.js"></script>
   <script src="/static/js/components/switch.js"></script>
   <script src="/static/js/jquery-2.2.3.min.js"></script>
-  <script src="/static/js/bootstrap.min.js"></script>
+  <!-- <script src="/static/js/bootstrap.min.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
   <script src="/static/js/reconnecting-websocket.js"></script>
   <script src="/static/js/app.js"></script>
 </body>
