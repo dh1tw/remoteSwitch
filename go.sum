@@ -66,8 +66,6 @@ github.com/asim/go-micro/plugins/transport/nats/v3 v3.0.0-20210416163442-a91d1f7
 github.com/asim/go-micro/plugins/transport/nats/v3 v3.0.0-20210416163442-a91d1f7a3dbb/go.mod h1:FVha/QDGvVjACCYJrchg0gaakHTBZ9Bsum7OEgZOErs=
 github.com/asim/go-micro/v3 v3.0.0-20210120135431-d94936f6c97c/go.mod h1:fAeb2KUnD3z4XwtQ91XFxw5zgGKhoTsLc6Ie81QdER4=
 github.com/asim/go-micro/v3 v3.5.0/go.mod h1:PR/RCuFk1F7aPnK6pc8Ca9rHOZzfg1x7+fvTygQa55g=
-github.com/asim/go-micro/v3 v3.5.1 h1:OthybEX1VmfBE1EVYWz7aAcJR96myYyR5oNA99e8UmQ=
-github.com/asim/go-micro/v3 v3.5.1/go.mod h1:OJ5DnUQmoEVQTNbKRstR7/krtYJI+QaBe/XeN5MZkqE=
 github.com/asim/go-micro/v3 v3.5.2-0.20210425055400-b11a2f17e92c h1:V5bMuk8GA3XqSrgkUPuVajt+jDDehUDLEhJXjtYV0Ic=
 github.com/asim/go-micro/v3 v3.5.2-0.20210425055400-b11a2f17e92c/go.mod h1:OJ5DnUQmoEVQTNbKRstR7/krtYJI+QaBe/XeN5MZkqE=
 github.com/aws/aws-sdk-go v1.23.0/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
@@ -647,8 +645,8 @@ golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20200519105757-fe76b779f299/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210420072515-93ed5bcd2bfe/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
-golang.org/x/sys v0.0.0-20210420205809-ac73e9fd8988 h1:EjgCl+fVlIaPJSori0ikSz3uV0DOHKWOJFpv1sAAhBM=
-golang.org/x/sys v0.0.0-20210420205809-ac73e9fd8988/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.1.0 h1:kunALQeHf1/185U1i0GOB/fy1IPRDDpuoOOqRReG57U=
+golang.org/x/sys v0.1.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/text v0.0.0-20170915032832-14c0d48ead0c/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
