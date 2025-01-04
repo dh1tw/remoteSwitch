@@ -282,9 +282,14 @@ func (r *Remotebox) getDeviceInfo() ([]string, error) {
 		return nil, readError
 	}
 
+retry:
 	line1, err := r.read()
 	if err != nil {
 		return nil, readError
+	}
+
+	if strings.Contains(line1, "ser2net") {
+		goto retry
 	}
 
 	line2, err := r.read()
