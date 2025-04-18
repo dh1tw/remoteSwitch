@@ -42,7 +42,7 @@ dist:
 	if [ "${GOOS}" = "windows" ]; \
 		then upx remoteSwitch.exe; \
 	else \
-		if [ "${GOOS}" = "darwin" ] && [ "${GOARCH}" = "arm64" ]; \
+		if [ "${GOOS}" = "darwin" ]; \
 			then true; \
 		else upx remoteSwitch; \
 		fi \
@@ -57,7 +57,7 @@ lint:
 	done
 
 install-deps:
-	go get golang.org/x/tools/cmd/stringer
+	go install golang.org/x/tools/cmd/stringer@latest
 
 clean:
 	-@rm remoteSwitch remoteSwitch-v*

@@ -7,9 +7,9 @@ import (
 	"sync"
 
 	sw "github.com/dh1tw/remoteSwitch/switch"
-	"periph.io/x/periph/conn/gpio"
-	"periph.io/x/periph/conn/gpio/gpioreg"
-	"periph.io/x/periph/host"
+	"periph.io/x/conn/v3/gpio"
+	"periph.io/x/conn/v3/gpio/gpioreg"
+	"periph.io/x/host/v3"
 )
 
 // MPSwitchGPIO contains the state and configuration of a
