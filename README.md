@@ -10,7 +10,7 @@
 
 remoteSwitch is a cross platform application which makes your (antenna/band/power...) switches available on the network.
 
-To get a first impression, you're welcome to play with our public demo at [demo.switch.shackbus.org](https://demo.switch.shackbus.org).
+To get a first impression, you're welcome to play with our public demo at [remoteswitch-demo.dh1tw.de](https://remoteswitch-demo.dh1tw.de).
 
 remoteSwitch is written in the programing language [Go](https://golang.org).
 
